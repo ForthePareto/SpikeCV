@@ -16,7 +16,7 @@ class ImgUtils:
 
         if (shape == img2.shape):
 
-            hybrid = np.zeros(shape)
+            hybrid = np.zeros(shape,dtype=np.uint8)
 
             for i , pixel in np.ndenumerate(self.img):
                 hybrid[i] =  pixel + img2[i]
@@ -24,7 +24,7 @@ class ImgUtils:
             raise Exception(f"input image must match size: {shape} ") 
 
 
-        return hybrid.astype(np.uint8)
+        return hybrid
 
 
 
@@ -45,10 +45,9 @@ im2 = imgReader("./img2.jpg")
 imUtil = ImgUtils(im1)
 
 
-
 hybrid = imUtil.hybrid(im2)
-print(f"hybrid shape: {hybrid.shape}")
-print(f"hybrid type: {type(hybrid)}")
+# print(f"hybrid shape: {hybrid.shape}")
+# print(f"hybrid type: {type(hybrid)}")
 
 im3 = Image.fromarray(hybrid.astype(np.uint8))
 im3.show()
