@@ -14,7 +14,7 @@ class Noise:
     @staticmethod
     def gaussian(image: np.ndarray, mean=0, variance=0.1,amount=0.2) -> np.ndarray:
         sigma = variance**0.5
-        gauss = np.random.normal(mean, sigma, (image.shape))*np.max(img)*amount
+        gauss = np.random.normal(mean, sigma, (image.shape))*np.max(image)*amount
         noisy = image + gauss
         return noisy
 

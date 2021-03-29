@@ -1,9 +1,11 @@
 import numpy as np
+from scipy import signal
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+from Noises import Noise
 
 
 class Filter:
-    def __init__(self, img):
-        pass
 
     @staticmethod
     def average(img: np.ndarray, kernel=3) -> np.ndarray:
@@ -17,7 +19,10 @@ class Filter:
             np.ndarray: [description]
         """
 
-        pass
+        avg_kernel = np.ones((kernel, kernel))
+        avg_kernel = (1/avg_kernel.size) * avg_kernel
+        output = signal.convolve(img, avg_kernel)
+        return output
 
     @staticmethod
     def gaussian(img: np.ndarray, kernel=3) -> np.ndarray:
@@ -88,7 +93,7 @@ class Filter:
 
         Returns:
             np.ndarray: [description]
-        """        
+        """
         pass
 
     # https://www.youtube.com/watch?v=9mLeVn8xzMw
@@ -116,3 +121,18 @@ class Filter:
             np.ndarray: [description]
         """
         pass
+
+
+if __name__ == '__main__':
+
+    img = mpimg.imread("emHn_NO-.jpg",)
+    # noisy = Noise.uniform(img)
+    # noisy = Noise.gaussian(img)
+    noisy = Noise.salt_pepper(img)
+    filtered = Filter.average(noisy, kernel=5)
+    f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
+    ax[0].imshow(noisy, cmap="gray")
+    ax[0].set_title("Noisy Image")
+    ax[1].set_title("Filtered Image")
+    ax[1].imshow(filtered, cmap="gray")
+    plt.show()
