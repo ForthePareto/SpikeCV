@@ -12,10 +12,9 @@ class Noise:
         return output
 
     @staticmethod
-    def gaussian(image: np.ndarray, mean=0, variance=0.1) -> np.ndarray:
+    def gaussian(image: np.ndarray, mean=0, variance=0.1,amount=0.2) -> np.ndarray:
         sigma = variance**0.5
-        gauss = np.random.normal(mean, sigma, (image.shape))
-        gauss = gauss.reshape(image.shape)*np.max(img)
+        gauss = np.random.normal(mean, sigma, (image.shape))*np.max(img)*amount
         noisy = image + gauss
         return noisy
 
@@ -38,8 +37,8 @@ class Noise:
 
 if __name__ == '__main__':
     img = mpimg.imread("emHn_NO-.jpg",)
-    noisy = Noise.uniform(img)
-    # noisy = Noise.gaussian(img)
+    # noisy = Noise.uniform(img)
+    noisy = Noise.gaussian(img)
     # noisy = Noise.salt_pepper(img)
     plt.imshow(noisy, cmap="gray")
     plt.show()
