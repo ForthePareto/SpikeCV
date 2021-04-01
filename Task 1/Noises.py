@@ -38,7 +38,7 @@ class Noise:
 if __name__ == '__main__':
     img = mpimg.imread("emHn_NO-.jpg",)
     # noisy = Noise.uniform(img)
-    noisy = Noise.gaussian(img)
-    # noisy = Noise.salt_pepper(img)
+    # noisy = Noise.gaussian(img)
+    noisy = Noise.salt_pepper(img)
     plt.imshow(noisy, cmap="gray")
     plt.show()

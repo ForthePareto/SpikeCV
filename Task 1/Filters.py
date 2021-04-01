@@ -3,6 +3,8 @@ from scipy import signal
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 from Noises import Noise
+from collections import OrderedDict
+from typing import Sequence
 
 
 class Filter:
@@ -38,7 +40,16 @@ class Filter:
         pass
 
     @staticmethod
-    def median(img: np.ndarray, kernel=3) -> np.ndarray:
+    def _is_convolution_in_bounds(img_shape: list, kernel_edges: np.array):
+        rows = list(range(img_shape[0]))
+        cols = list(range(img_shape[1]))
+        if (kernel_edges[0] not in cols) or (kernel_edges[1] not in cols) or (kernel_edges[2] not in rows) or (kernel_edges[3] not in rows):
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def median(img: Sequence[int], kernel=3) -> np.ndarray:
         """median [summary]
 
         Args:
@@ -48,7 +59,33 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        pass
+        n_rows, n_cols = img.shape[0], img.shape[1]
+        output= np.zeros((n_rows-kernel+1, n_cols-kernel+1))
+        convoltution_mask = np.zeros((kernel, kernel))
+
+        edge_name = ["kernel_left_x", "kernel_right_x",
+                     "kernel_upper_y", "kernel_lower_y"]
+        kernel_edges = np.zeros(4)
+        for row in range(n_rows-1):
+            for col in range(n_cols-1):
+                kernel_center = np.array([(kernel//2)+row, (kernel//2)+col])
+                kernel_left_x = kernel_edges[0] = kernel_center[0] - kernel//2
+                kernel_right_x = kernel_edges[1] = kernel_center[0] + kernel//2
+                kernel_upper_y = kernel_edges[2] = kernel_center[1] - kernel//2
+                kernel_lower_y = kernel_edges[3] = kernel_center[1] + kernel//2
+                
+                if (Filter._is_convolution_in_bounds(img.shape, kernel_edges) == False) :
+                    continue
+                # print(kernel_center)
+                # print(kernel_edges)
+                convoltution_mask[:, :] = img[kernel_upper_y:(kernel_lower_y +
+                                              1), kernel_left_x:(kernel_right_x+1)]
+                sorted_mask = np.sort(
+                    convoltution_mask.flatten(), kind="mergesort")
+                median = sorted_mask[len(sorted_mask)//2+1]
+                print(median)
+                output[row, col] = median
+        return output
 
     @staticmethod
     def sobel(img: np.ndarray, direction="x") -> np.ndarray:
@@ -125,11 +162,13 @@ class Filter:
 
 if __name__ == '__main__':
 
-    img = mpimg.imread("emHn_NO-.jpg",)
+    img = mpimg.imread("emHn_NO-.jpg")
     # noisy = Noise.uniform(img)
     # noisy = Noise.gaussian(img)
-    noisy = Noise.salt_pepper(img)
-    filtered = Filter.average(noisy, kernel=5)
+    noisy = Noise.salt_pepper(np.ones((64,64))*200,salt_ratio=0.1)
+    filtered = Filter.median(noisy, kernel=3)
+    print(np.min(noisy))
+    print(filtered)
     f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
     ax[0].imshow(noisy, cmap="gray")
     ax[0].set_title("Noisy Image")
