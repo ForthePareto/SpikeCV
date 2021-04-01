@@ -59,33 +59,67 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        n_rows, n_cols = img.shape[0], img.shape[1]
-        output= np.zeros((n_rows-kernel+1, n_cols-kernel+1))
-        convoltution_mask = np.zeros((kernel, kernel))
 
-        edge_name = ["kernel_left_x", "kernel_right_x",
-                     "kernel_upper_y", "kernel_lower_y"]
-        kernel_edges = np.zeros(4)
-        for row in range(n_rows-1):
-            for col in range(n_cols-1):
-                kernel_center = np.array([(kernel//2)+row, (kernel//2)+col])
-                kernel_left_x = kernel_edges[0] = kernel_center[0] - kernel//2
-                kernel_right_x = kernel_edges[1] = kernel_center[0] + kernel//2
-                kernel_upper_y = kernel_edges[2] = kernel_center[1] - kernel//2
-                kernel_lower_y = kernel_edges[3] = kernel_center[1] + kernel//2
+        temp = []
+        filter_size = kernel
+        indexer = filter_size // 2
+        data = img.copy()
+        data_final = []
+        data_final = np.zeros((len(data),len(data[0])))
+        for i in range(len(data)):
+
+            for j in range(len(data[0])):
+
+                for z in range(filter_size):
+                    if i + z - indexer < 0 or i + z - indexer > len(data) - 1:
+                        for c in range(filter_size):
+                            temp.append(0)
+                    else:
+                        if j + z - indexer < 0 or j + indexer > len(data[0]) - 1:
+                            temp.append(0)
+                        else:
+                            for k in range(filter_size):
+                                temp.append(data[i + z - indexer][j + k - indexer])
+
+                temp.sort()
+                data_final[i][j] = temp[len(temp) // 2]
+                temp = []
+        return data_final
+
+
+        # n_rows, n_cols = img.shape[0], img.shape[1]
+        # output= np.zeros((n_rows-kernel+1, n_cols-kernel+1))
+        # output = img[1:n_rows-1,1:n_cols-1]
+        # convoltution_mask = np.zeros((kernel, kernel))
+
+        # edge_name = ["kernel_left_x", "kernel_right_x",
+        #              "kernel_upper_y", "kernel_lower_y"]
+        # kernel_edges = np.zeros(4)
+        # count = 
+        # for row in range(n_rows-1):
+        #     for col in range(n_cols-1):
+        #         kernel_center = np.array([(kernel//2)+row, (kernel//2)+col])
+        #         kernel_left_x = kernel_edges[0] = kernel_center[0] - kernel//2
+        #         kernel_right_x = kernel_edges[1] = kernel_center[0] + kernel//2
+        #         kernel_upper_y = kernel_edges[2] = kernel_center[1] - kernel//2
+        #         kernel_lower_y = kernel_edges[3] = kernel_center[1] + kernel//2
                 
-                if (Filter._is_convolution_in_bounds(img.shape, kernel_edges) == False) :
-                    continue
-                # print(kernel_center)
-                # print(kernel_edges)
-                convoltution_mask[:, :] = img[kernel_upper_y:(kernel_lower_y +
-                                              1), kernel_left_x:(kernel_right_x+1)]
-                sorted_mask = np.sort(
-                    convoltution_mask.flatten(), kind="mergesort")
-                median = sorted_mask[len(sorted_mask)//2+1]
-                print(median)
-                output[row, col] = median
-        return output
+        #         if (Filter._is_convolution_in_bounds(img.shape, kernel_edges) == False) :
+        #             continue
+        #         # print(kernel_center)
+        #         # print(kernel_edges)
+        #         convoltution_mask[:, :] = img[kernel_upper_y:(kernel_lower_y +
+        #                                       1), kernel_left_x:(kernel_right_x+1)]
+        #         # print(convoltution_mask.shape)
+        #         sorted_mask = np.sort(
+        #             convoltution_mask.flatten(), kind="mergesort")
+        #         print(sorted_mask)
+        #         median = sorted_mask[len(sorted_mask)//2+1]
+        #         print("pixel is: ",img[row,col])
+        #         print("median is :", median)
+        #         # print(median)
+        #         output[row, col] = median
+        # return output
 
     @staticmethod
     def sobel(img: np.ndarray, direction="x") -> np.ndarray:
@@ -165,10 +199,9 @@ if __name__ == '__main__':
     img = mpimg.imread("emHn_NO-.jpg")
     # noisy = Noise.uniform(img)
     # noisy = Noise.gaussian(img)
-    noisy = Noise.salt_pepper(np.ones((64,64))*200,salt_ratio=0.1)
-    filtered = Filter.median(noisy, kernel=3)
-    print(np.min(noisy))
-    print(filtered)
+    noisy = Noise.salt_pepper(img)
+    print()
+    filtered = Filter.median(noisy, kernel=5)
     f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
     ax[0].imshow(noisy, cmap="gray")
     ax[0].set_title("Noisy Image")
