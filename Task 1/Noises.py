@@ -36,7 +36,7 @@ class Noise:
 
 
 if __name__ == '__main__':
-    img = mpimg.imread("emHn_NO-.jpg",)
+    img = mpimg.imread("EvV4-uOWYAQOM1x.jpg",)
     # noisy = Noise.uniform(img)
     # noisy = Noise.gaussian(img)
     noisy = Noise.salt_pepper(img)
