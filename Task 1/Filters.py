@@ -151,7 +151,7 @@ class Filter:
         return output
 
     @staticmethod
-    def prewitt(img: np.ndarray, kernel_size=3, direction="x") -> np.ndarray:
+    def prewitt(img: np.ndarray,) -> np.ndarray:
         """prewitt [summary]
 
         Args:
@@ -280,11 +280,12 @@ class Kernel:
         gauss_kernel = np.exp(-((x**2+y**2)/(2*std**2)))
         gauss_kernel = gauss_kernel/np.sum(gauss_kernel)
         if plot:
-            Kernel._plot(gauss_kernel)
+            Kernel._plot(gauss_kernel,mode="3d",x=x , y=y)
         return gauss_kernel
 
     @staticmethod
     def sobel(direction="x", kernel_size=3, plot=False):
+
         axis = direction.lower()
         kernel_shape = (kernel_size, kernel_size)
         sobel_kernel = np.zeros(kernel_shape)
@@ -302,14 +303,20 @@ class Kernel:
         return sobel_kernel
 
     @staticmethod
-    def Prewitt(self, **kwgs):
+    def prewitt(kernel_size=3, direction="x"):
         pass
 
     @classmethod
-    def _plot(cls, kernel):
-        plt.imshow(kernel, cmap=plt.get_cmap(
-            'jet'), interpolation='nearest')
-        plt.colorbar()
+    def _plot(cls, kernel, mode="2d", **kwargs):
+        if mode.lower() == "2d":
+            plt.imshow(kernel, cmap=plt.get_cmap(
+                'jet'), interpolation='nearest')
+            plt.colorbar()
+        elif mode.lower() == "3d":
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            ax.plot_surface(kwargs["x"], kwargs["y"], kernel,cmap=plt.get_cmap(
+                'coolwarm'))
         plt.show()
 
 
@@ -321,7 +328,7 @@ if __name__ == '__main__':
     # noisy = Noise.salt_pepper(img)
     # filtered = Filter.average(noisy, kernel_size=5)
     # Filter.gaussian(img)
-    Kernel.sobel(kernel_size=5, plot=True)
+    Kernel.gaussian(kernel_size=20, std=2.33, plot=True)
     # f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
     # ax[0].imshow(noisy)
     # ax[0].set_title("Noisy Image")
