@@ -6,20 +6,21 @@ import matplotlib.pyplot as plt
 class Noise:
 
     @staticmethod
-    def uniform(image: np.ndarray, amount=0.2) -> np.ndarray:
+    def uniform(image: np.ndarray, amount=0.35) -> np.ndarray:
         noise = amount*np.random.uniform(0, 255, size=image.shape)
-        output = (noise + image).astype(np.uint8)
-        return output
+        output = (noise + image)
+
+        return normalize(output)
 
     @staticmethod
-    def gaussian(image: np.ndarray, mean=0, variance=0.1,amount=0.2) -> np.ndarray:
-        sigma = variance**0.5
-        gauss = np.random.normal(mean, sigma, (image.shape))*np.max(image)*amount
-        noisy = image + gauss
-        return noisy
+    def gaussian(image: np.ndarray, mean=0, std=2,amount=0.1) -> np.ndarray:
+        
+        gauss = np.random.normal(mean, std, (image.shape))
+        noisy = image + gauss*(np.max(image)//2)*amount
+        return np.clip(noisy, 0, 255)
 
     @staticmethod
-    def salt_pepper(image: np.ndarray, salt_ratio=0.5, amount=0.01) -> np.ndarray:
+    def salt_pepper(image: np.ndarray, salt_ratio=0.5, amount=0.07) -> np.ndarray:
         output = np.copy(image)
         # Salt mode
         num_salt = np.ceil(amount * image.size * salt_ratio)
@@ -32,11 +33,15 @@ class Noise:
         coords = [np.random.randint(0, i - 1, int(num_pepper))
                   for i in image.shape]
         output[tuple(coords)] = 0
-        return output
-
+        return normalize(output)
+   
+    
+def normalize(img):
+        return (img/np.max(img) *255).astype(np.uint8)
 
 if __name__ == '__main__':
-    img = mpimg.imread("EvV4-uOWYAQOM1x.jpg",)
+    img = mpimg.imread("EvV4-colored.jpg",)
+    
     # noisy = Noise.uniform(img)
     # noisy = Noise.gaussian(img)
     noisy = Noise.salt_pepper(img)

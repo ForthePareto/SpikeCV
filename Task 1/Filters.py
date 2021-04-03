@@ -38,10 +38,9 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        n_ImgChannels = number_of_image_channels(img)
-        avg_kernel = Kernel(
-            "average", kernel_size=kernel_size, n_channels=n_ImgChannels)
-        output = signal.convolve(img, avg_kernel)
+
+        avg_kernel = Kernel.average(kernel_size=kernel_size)
+        output = signal.convolve2d(img, avg_kernel)
         print(output.shape)
         return output
 
@@ -59,9 +58,12 @@ class Filter:
         """
 
         kernel = Kernel.gaussian(kernel_size=kernel_size, std=std)
+        output = signal.convolve2d(img, kernel)
+        print(output.shape)
+        return output
 
     @staticmethod
-    def median(img: Sequence[int], kernel_size=3) -> np.ndarray:
+    def median(img: Sequence[int], kernel_size=3) -> np.ndarray:  # RGB
         """median [summary]
 
         Args:
@@ -76,8 +78,7 @@ class Filter:
         filter_size = kernel_size
         indexer = filter_size // 2
         data = img.copy()
-        data_final = []
-        data_final = np.zeros((len(data), len(data[0])))
+        data_final = np.zeros((data.shape))
         for i in range(len(data)):  # rows
 
             for j in range(len(data[0])):  # columns
@@ -134,7 +135,7 @@ class Filter:
         # return output
 
     @staticmethod
-    def sobel(img: np.ndarray, direction="x", kernel_size=3) -> np.ndarray:
+    def sobel(img: np.ndarray, direction="x", kernel_size=3, magnitude=True) -> np.ndarray:
         """sobel [summary]
 
         Args:
@@ -145,13 +146,20 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        sobel_kernel = Kernel.sobel(
-            direction=direction, kernel_size=kernel_size)
-        output = signal.convolve(img, sobel_kernel)
-        return output
+        if direction.lower() == "xy":
+            return Filter.sobel(img, direction="x", kernel_size=kernel_size) + Filter.sobel(img, direction="y", kernel_size=kernel_size)
+        else:
+            sobel_kernel = Kernel.sobel(
+                direction=direction, kernel_size=kernel_size)
+            output = signal.convolve2d(img, sobel_kernel)
+
+        if magnitude:
+            return np.abs(output)
+        else:
+            return output
 
     @staticmethod
-    def prewitt(img: np.ndarray,) -> np.ndarray:
+    def prewitt(img: np.ndarray, direction="x", kernel_size=3, magnitude=True) -> np.ndarray:
         """prewitt [summary]
 
         Args:
@@ -161,9 +169,18 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        prewitt_kernel = Kernel.prewitt(
-            direction=direction, kernel_size=kernel_size)
+        if direction.lower() == "xy":
+            return Filter.prewitt(img, direction="x", kernel_size=kernel_size) + Filter.prewitt(img, direction="y", kernel_size=kernel_size)
+        else:
+            prewitt_kernel = Kernel.prewitt(
+                direction=direction, kernel_size=kernel_size)
+            output = signal.convolve2d(img, prewitt_kernel)
+        if magnitude:
+            return np.abs(output)
+        else:
+            return output
 
+    # https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
     @staticmethod
     def canny(img: np.ndarray, min_value: int, max_value: int) -> np.ndarray:
         """canny [The Process of Canny edge detection algorithm can be broken down to 5 different steps:
@@ -182,7 +199,16 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        pass
+        smoothed = Filter.gaussian(img)
+        grad_x = Filter.sobel(img, direction="x",
+                              kernel_size=3, magnitude=False)
+        grad_y = Filter.sobel(img, direction="y",
+                              kernel_size=3, magnitude=False)
+        G = np.hypot(grad_x, grad_y)
+        G = G / G.max() * 255
+        theta = np.arctan2(grad_x, grad_y)
+
+        return (G, theta)
 
     # https://www.youtube.com/watch?v=9mLeVn8xzMw
     def low_pass_frequency(img: np.ndarray, cut_off: int) -> np.ndarray:
@@ -261,9 +287,8 @@ def convolve(image, filter, padding=(1, 1)):
 
 class Kernel:
     @staticmethod
-    def average(kernel_size=3, n_channels=2, plot=False):
-        avg_kernel = np.ones((kernel_size, kernel_size)) if n_channels == 2 else np.ones(
-            (kernel_size, kernel_size, 3))
+    def average(kernel_size=3, plot=False):
+        avg_kernel = np.ones((kernel_size, kernel_size))
         avg_kernel = (1/avg_kernel.size) * avg_kernel
         if plot:
             Kernel._plot(avg_kernel)
@@ -280,31 +305,33 @@ class Kernel:
         gauss_kernel = np.exp(-((x**2+y**2)/(2*std**2)))
         gauss_kernel = gauss_kernel/np.sum(gauss_kernel)
         if plot:
-            Kernel._plot(gauss_kernel,mode="3d",x=x , y=y)
+            Kernel._plot(gauss_kernel, mode="3d", x=x, y=y)
         return gauss_kernel
 
     @staticmethod
     def sobel(direction="x", kernel_size=3, plot=False):
-
-        axis = direction.lower()
-        kernel_shape = (kernel_size, kernel_size)
-        sobel_kernel = np.zeros(kernel_shape)
-        p = [(j, i) for j in range(kernel_shape[0])
-             for i in range(kernel_shape[1])
-             if not (i == (kernel_shape[1] - 1)/2. and j == (kernel_shape[0] - 1)/2.)]
-
-        for j, i in p:
-            j_ = int(j - (kernel_shape[0] - 1)/2.)
-            i_ = int(i - (kernel_shape[1] - 1)/2.)
-            sobel_kernel[j, i] = (
-                i_ if axis == "x" else j_)/float(i_*i_ + j_*j_)
+        if direction.lower() not in ["x", "y"]:
+            raise ValueError("Undefined direction, use x or y")
+        a = np.ones((kernel_size, 1))
+        a[(kernel_size//2), :] = 2
+        b = np.arange(kernel_size//2, -(kernel_size//2+1), -
+                      1).reshape(1, kernel_size)
+        sobel_kernel = a@b if direction.lower() == "x" else (a@b).T
         if plot:
             Kernel._plot(sobel_kernel)
         return sobel_kernel
 
     @staticmethod
-    def prewitt(kernel_size=3, direction="x"):
-        pass
+    def prewitt(kernel_size=3, direction="x", plot=False):
+        if direction.lower() not in ["x", "y"]:
+            raise ValueError("Undefined direction, use x or y")
+        a = np.ones((kernel_size, 1))
+        b = np.arange(kernel_size//2, -(kernel_size//2+1), -
+                      1).reshape(1, kernel_size)
+        prewitt_kernel = a@b if direction.lower() == "x" else (a@b).T
+        if plot:
+            Kernel._plot(prewitt_kernel)
+        return prewitt_kernel
 
     @classmethod
     def _plot(cls, kernel, mode="2d", **kwargs):
@@ -315,23 +342,33 @@ class Kernel:
         elif mode.lower() == "3d":
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
-            ax.plot_surface(kwargs["x"], kwargs["y"], kernel,cmap=plt.get_cmap(
+            ax.plot_surface(kwargs["x"], kwargs["y"], kernel, cmap=plt.get_cmap(
                 'coolwarm'))
         plt.show()
 
 
 if __name__ == '__main__':
 
-    img = mpimg.imread("EvV4-uOWYAQOM1x.jpg")
-    noisy = Noise.uniform(img)
+    img = mpimg.imread("gray.jpg")
+    print(img.ndim)
+    def gray(rgb): return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
+    img = gray(img)
+    # noisy = Noise.uniform(img)
     # noisy = Noise.gaussian(img)
     # noisy = Noise.salt_pepper(img)
-    # filtered = Filter.average(noisy, kernel_size=5)
+    # smooth = Filter.gaussian(img, kernel_size=5)
+    filtered = Filter.sobel(img, direction="x", kernel_size=5)
+    # mask = filtered[:, :] > 150
+    # filtered = np.zeros((filtered.shape))
+    # filtered[mask] = 255
     # Filter.gaussian(img)
-    Kernel.gaussian(kernel_size=20, std=2.33, plot=True)
-    # f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
-    # ax[0].imshow(noisy)
-    # ax[0].set_title("Noisy Image")
+    # Kernel.sobel(kernel_size=5, direction='g', plot=True)
+
+    f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
+    ax[0].imshow(filtered, cmap="gray")
+    ax[0].set_title("Noisy Image")
     # ax[1].set_title("Filtered Image")
-    # ax[1].imshow(filtered)
-    # plt.show()
+    # ax[1].imshow(filtered,cmap="gray")
+    plt.axis("off")
+
+    plt.show()
