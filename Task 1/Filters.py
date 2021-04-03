@@ -221,7 +221,7 @@ class Filter:
 
     # https://www.youtube.com/watch?v=9mLeVn8xzMw
     @staticmethod
-    def low_pass_frequency(img: np.ndarray, cut_off: int) -> np.ndarray:
+    def low_pass_frequency(img: np.ndarray, cut_off_x=40, cut_off_y=40) -> np.ndarray:
         """low_pass_frequency [https://plotly.com/python/v3/fft-filters/]
 
         Args:
@@ -231,12 +231,24 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        pass
+
+        ncols, nrows = img.shape[0], img.shape[1]
+        print(img.shape)
+        gmask = Kernel.gaussian_frequency_mask(
+            shape=(ncols, nrows), mode='low_pass', cut_off_x=cut_off_x, cut_off_y=cut_off_y, plot=False)
+        ftimage = np.fft.fft2(img)
+
+        ftimage = np.fft.fftshift(ftimage)
+        ftimagep = ftimage * gmask.T  # product instead of convolution
+
+        # take the inverse transform and return blurred image
+        imagep = np.fft.ifft2(ftimagep)
+        return imagep
 
     # https://www.youtube.com/watch?v=9mLeVn8xzMw
     @staticmethod
-    def high_pass_frequency(img: np.ndarray, cut_off: int) -> np.ndarray:
-        """low_pass_frequency [https://plotly.com/python/v3/fft-filters/]
+    def high_pass_frequency(img: np.ndarray, cut_off_x=50, cut_off_y=50) -> np.ndarray:
+        """high_pass_frequency [https://plotly.com/python/v3/fft-filters/]
 
         Args:
             img (np.ndarray): [description]
@@ -245,7 +257,17 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
-        pass
+        ncols, nrows = img.shape[0], img.shape[1]
+        gmask = Kernel.gaussian_frequency_mask(
+            shape=(ncols, nrows), mode='high_pass', cut_off_x=cut_off_x, cut_off_y=cut_off_y, plot=False)
+        ftimage = np.fft.fft2(img)
+
+        ftimage = np.fft.fftshift(ftimage)
+        ftimagep = ftimage * gmask.T  # product instead of convolution
+
+        # take the inverse transform and return blurred image
+        imagep = np.fft.ifft2(ftimagep)
+        return imagep
 
     @classmethod
     def _non_max_suppression(cls, img, grad_direction):
@@ -330,54 +352,6 @@ class Filter:
         return img
 
 
-def convolve(image, filter, padding=(1, 1)):
-    # Assuming the image has channels as the last dimension.
-    # filter.shape -> (kernel_size, kernel_size, channels)
-    # image.shape -> (width, height, channels)
-    # For this to work neatly, filter and image should have the same number of channels
-    # Alternatively, filter could have just 1 channel or 2 dimensions
-
-    if(image.ndim == 2):
-        # Convert 2D grayscale images to 3D
-        image = np.expand_dims(image, axis=-1)
-    if(filter.ndim == 2):
-        filter = np.repeat(np.expand_dims(filter, axis=-1),
-                           image.shape[-1], axis=-1)  # Same with filters
-    if(filter.shape[-1] == 1):
-        # Give filter the same channel count as the image
-        filter = np.repeat(filter, image.shape[-1], axis=-1)
-
-    # print(filter.shape, image.shape)
-    assert image.shape[-1] == filter.shape[-1]
-    size_x, size_y = filter.shape[:2]
-    width, height = image.shape[:2]
-
-    output_array = np.zeros(((width - size_x + 2*padding[0]) + 1,
-                             (height - size_y + 2*padding[1]) + 1,
-                             image.shape[-1]))  # Convolution Output: [(W−K+2P)/S]+1
-
-    padded_image = np.pad(image, [
-        (padding[0], padding[0]),
-        (padding[1], padding[1]),
-        (0, 0)
-    ])
-
-    # -size_x + 1 is to keep the window within the bounds of the image
-    for x in range(padded_image.shape[0] - size_x + 1):
-        for y in range(padded_image.shape[1] - size_y + 1):
-
-            # Creates the window with the same size as the filter
-            window = padded_image[x:x + size_x, y:y + size_y]
-
-            # Sums over the product of the filter and the window
-            output_values = np.sum(filter * window, axis=(0, 1))
-
-            # Places the calculated value into the output_array
-            output_array[x, y] = output_values
-
-    return output_array
-
-
 class Kernel:
     @staticmethod
     def average(kernel_size=3, plot=False):
@@ -426,6 +400,43 @@ class Kernel:
             Kernel._plot(prewitt_kernel)
         return prewitt_kernel
 
+    @staticmethod
+    def gaussian_frequency_mask(shape: tuple, mode="low_pass", cut_off_x=40, cut_off_y=40, plot=False):
+        if mode.lower() not in ["low_pass", "high_pass"]:
+            raise ValueError(
+                "please provide a valid mode either low_pass or high_pass")
+        ncols, nrows = shape[0], shape[1]
+        centerY, centerX = nrows//2, ncols//2
+        x = np.linspace(0, ncols, ncols)  # horizontal
+        y = np.linspace(0, nrows, nrows)  # vertical
+        X, Y = np.meshgrid(x, y)
+        if mode.lower() == "low_pass":
+            gmask = np.exp(-(((X-centerX)/cut_off_x) **
+                             2 + ((Y-centerY)/cut_off_y)**2))
+        else:  # high_pass
+            gmask = 1 - np.exp(-(((X-centerX)/cut_off_x) **
+                                 2 + ((Y-centerY)/cut_off_y)**2))
+        if plot:
+            Kernel._plot(gmask, mode="3d", x=X, y=Y)
+        return gmask
+
+    def circular_frequency_mask(shape: tuple, mode="low_pass", cut_off_x=40, cut_off_y=40, plot=False):
+        ncols, nrows = shape[0], shape[1]
+        centerY, centerX = nrows//2, ncols//2
+        x = np.linspace(0, ncols, ncols)  # horizontal
+        y = np.linspace(0, nrows, nrows)  # vertical
+        X, Y = np.meshgrid(x, y)
+        mask = np.zeros((shape))
+        area = cut_off_x**2+cut_off_y**2
+        if mode.lower() == "low_pass":
+            mask_area = ((X-centerX))**2 + ((Y-centerY))**2   <=  area        
+        else:  # high_pass
+            mask_area = ((X-centerX))**2 + ((Y-centerY))**2 >= area
+        if plot:
+            Kernel._plot(mask, mode="3d", x=X, y=Y)
+        mask[mask_area.T] = 1
+        return mask.T
+
     @classmethod
     def _plot(cls, kernel, mode="2d", **kwargs):
         if mode.lower() == "2d":
@@ -450,7 +461,7 @@ if __name__ == '__main__':
     # noisy = Noise.gaussian(img)
     # noisy = Noise.salt_pepper(img)
     # smooth = Filter.gaussian(img, kernel_size=5)
-    filtered = Filter.canny(img, 3, 5)
+    filtered = Filter.high_pass_frequency(img,cut_off_x=35,cut_off_y=35)
     # mask = filtered[:, :] > 150
     # filtered = np.zeros((filtered.shape))
     # filtered[mask] = 255
@@ -458,7 +469,7 @@ if __name__ == '__main__':
     # Kernel.sobel(kernel_size=5, direction='g', plot=True)
 
     f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
-    ax[0].imshow(filtered, cmap="gray")
+    ax[0].imshow(np.abs(filtered), cmap="gray")
     ax[0].set_title("Noisy Image")
     # ax[1].set_title("Filtered Image")
     # ax[1].imshow(filtered,cmap="gray")
