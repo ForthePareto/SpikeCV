@@ -182,7 +182,7 @@ class Filter:
 
     # https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
     @staticmethod
-    def canny(img: np.ndarray, min_value: int, max_value: int) -> np.ndarray:
+    def canny(img: np.ndarray, min_value=230, max_value=250) -> np.ndarray:
         """canny [The Process of Canny edge detection algorithm can be broken down to 5 different steps:
 
                     Apply Gaussian filter to smooth the image in order to remove the noise
@@ -199,18 +199,28 @@ class Filter:
         Returns:
             np.ndarray: [description]
         """
+        assert img.ndim == 2  # canny works only with grayscale images
         smoothed = Filter.gaussian(img)
-        grad_x = Filter.sobel(img, direction="x",
-                              kernel_size=3, magnitude=False)
-        grad_y = Filter.sobel(img, direction="y",
-                              kernel_size=3, magnitude=False)
-        G = np.hypot(grad_x, grad_y)
-        G = G / G.max() * 255
-        theta = np.arctan2(grad_x, grad_y)
+        grad_x = Filter.sobel(smoothed, direction="x",
+                              kernel_size=3, magnitude=True)
+        grad_y = Filter.sobel(smoothed, direction="y",
+                              kernel_size=3, magnitude=True)
+        Grad_xy = np.hypot(grad_x, grad_y)
+        Grad_xy = Grad_xy / Grad_xy.max() * 255
+        theta = np.arctan2(grad_y, grad_x)
 
-        return (G, theta)
+        suppressed = Filter._non_max_suppression(Grad_xy, theta)
+
+        thresholded, weak_pixel_val, strong_pixel_val = Filter._threshold(
+            suppressed, min_edge_thresh=min_value, max_edge_thresh=max_value)
+
+        hysteresis_output = Filter._hysteresis(
+            thresholded, weak=weak_pixel_val, strong=strong_pixel_val)
+
+        return hysteresis_output
 
     # https://www.youtube.com/watch?v=9mLeVn8xzMw
+    @staticmethod
     def low_pass_frequency(img: np.ndarray, cut_off: int) -> np.ndarray:
         """low_pass_frequency [https://plotly.com/python/v3/fft-filters/]
 
@@ -224,6 +234,7 @@ class Filter:
         pass
 
     # https://www.youtube.com/watch?v=9mLeVn8xzMw
+    @staticmethod
     def high_pass_frequency(img: np.ndarray, cut_off: int) -> np.ndarray:
         """low_pass_frequency [https://plotly.com/python/v3/fft-filters/]
 
@@ -235,6 +246,88 @@ class Filter:
             np.ndarray: [description]
         """
         pass
+
+    @classmethod
+    def _non_max_suppression(cls, img, grad_direction):
+        Rows, Columns = img.shape[0], img.shape[1]
+        Z = np.zeros((Rows, Columns), dtype=np.int32)
+        angle = grad_direction * 180. / np.pi
+        angle[angle < 0] += 180
+
+        for row in range(1, Rows-1):
+            for column in range(1, Columns-1):
+                try:
+                    first_neighbor = 255
+                    second_neighbor = 255
+
+                    # angle 0
+                    if (0 <= angle[row, column] < 22.5) or (157.5 <= angle[row, column] <= 180):
+                        first_neighbor = img[row, column+1]
+                        second_neighbor = img[row, column-1]
+                    # angle 45
+                    elif (22.5 <= angle[row, column] < 67.5):
+                        first_neighbor = img[row+1, column-1]
+                        second_neighbor = img[row-1, column+1]
+                    # angle 90
+                    elif (67.5 <= angle[row, column] < 112.5):
+                        first_neighbor = img[row+1, column]
+                        second_neighbor = img[row-1, column]
+                    # angle 135
+                    elif (112.5 <= angle[row, column] < 157.5):
+                        first_neighbor = img[row-1, column-1]
+                        second_neighbor = img[row+1, column+1]
+
+                    if (img[row, column] >= first_neighbor) and (img[row, column] >= second_neighbor):
+                        Z[row, column] = img[row, column]
+                    else:
+                        Z[row, column] = 0
+
+                except IndexError as e:
+                    pass
+
+        return Z
+
+    @classmethod
+    def _threshold(cls, img, lowThresholdRatio=0.05, highThresholdRatio=0.09, min_edge_thresh=40, max_edge_thresh=70):
+
+        highThreshold = np.max(img) * highThresholdRatio
+        lowThreshold = highThreshold * lowThresholdRatio
+        # highThreshold = max_edge_thresh
+        # lowThreshold = min_edge_thresh
+
+        M, N = img.shape[0], img.shape[1]
+        res = np.zeros((M, N), dtype=np.int32)
+
+        weak_pixel_val = np.int32(25)
+        strong_pixel_val = np.int32(255)
+
+        strong_i, strong_j = np.where(img >= highThreshold)
+        weak_i, weak_j = np.where(
+            (img <= highThreshold) & (img >= lowThreshold))
+
+        res[strong_i, strong_j] = strong_pixel_val
+        res[weak_i, weak_j] = weak_pixel_val
+
+        return (res, weak_pixel_val, strong_pixel_val)
+
+    @ classmethod
+    def _hysteresis(cls, image, weak=25, strong=255):
+        img = np.copy(image)
+        rows, columns = img.shape[0], img.shape[1]
+        for row in range(1, rows-1):
+            for col in range(1, columns-1):
+                if (img[row, col] == weak):
+                    try:
+                        if ((img[row+1, col-1] == strong) or (img[row+1, col] == strong) or (img[row+1, col+1] == strong)
+                            or (img[row, col-1] == strong) or (img[row, col+1] == strong)
+                                or (img[row-1, col-1] == strong) or (img[row-1, col] == strong) or (img[row-1, col+1] == strong)):
+
+                            img[row, col] = strong
+                        else:
+                            img[row, col] = 0
+                    except IndexError as e:
+                        pass
+        return img
 
 
 def convolve(image, filter, padding=(1, 1)):
@@ -254,7 +347,7 @@ def convolve(image, filter, padding=(1, 1)):
         # Give filter the same channel count as the image
         filter = np.repeat(filter, image.shape[-1], axis=-1)
 
-    #print(filter.shape, image.shape)
+    # print(filter.shape, image.shape)
     assert image.shape[-1] == filter.shape[-1]
     size_x, size_y = filter.shape[:2]
     width, height = image.shape[:2]
@@ -349,7 +442,7 @@ class Kernel:
 
 if __name__ == '__main__':
 
-    img = mpimg.imread("gray.jpg")
+    img = mpimg.imread("small_img.png")
     print(img.ndim)
     def gray(rgb): return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
     img = gray(img)
@@ -357,7 +450,7 @@ if __name__ == '__main__':
     # noisy = Noise.gaussian(img)
     # noisy = Noise.salt_pepper(img)
     # smooth = Filter.gaussian(img, kernel_size=5)
-    filtered = Filter.sobel(img, direction="x", kernel_size=5)
+    filtered = Filter.canny(img, 3, 5)
     # mask = filtered[:, :] > 150
     # filtered = np.zeros((filtered.shape))
     # filtered[mask] = 255
