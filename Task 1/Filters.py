@@ -3,148 +3,88 @@ from scipy import signal
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 from Noises import Noise
-from collections import OrderedDict
-from typing import Sequence
 
 
-def number_of_image_channels(img):
-    if len(img.shape) == 3 and img.shape[2] == 3:  # 3-channels e.g rgb img
-        return 3
-    elif len(img.shape) == 2 or img.shape[2] == 1:
-        return 2
-    else:
-        raise ValueError("Undefined image size")
-
-
-def is_convolution_in_bounds(img_shape: list, kernel_edges: np.array):
-    rows = list(range(img_shape[0]))
-    cols = list(range(img_shape[1]))
-    if (kernel_edges[0] not in cols) or (kernel_edges[1] not in cols) or (kernel_edges[2] not in rows) or (kernel_edges[3] not in rows):
-        return False
-    else:
-        return True
+def gray(rgb):
+    if not (rgb.ndim == 3):
+        raise ValueError("input must be 3-dimensional")
+    return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
 
 
 class Filter:
 
     @staticmethod
     def average(img: np.ndarray, kernel_size=3) -> np.ndarray:
-        """average [summary]
+        """
+        average [summary]
 
-        Args:
-            img (np.ndarray): [description]
-            kernel (int, optional): [description]. Defaults to 3.
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        kernel_size : int, optional
+            [description], by default 3
 
-        Returns:
-            np.ndarray: [description]
+        Returns
+        -------
+        np.ndarray
+            [description]
         """
 
         avg_kernel = Kernel.average(kernel_size=kernel_size)
         output = signal.convolve2d(img, avg_kernel)
-        print(output.shape)
         return output
 
     @staticmethod
     def gaussian(img: np.ndarray, kernel_size=3, std=1) -> np.ndarray:
-        """gaussian [summary]
+        """
+        gaussian [summary]
 
-        Args:
-            img (np.ndarray): [description]
-            kernel_size (int, optional): [description]. Defaults to 3.
-            std (int, optional): [description]. Defaults to 1.
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        kernel_size : int, optional
+            [description], by default 3
+        std : int, optional
+            [description], by default 1
 
-        Returns:
-            np.ndarray: [description]
+        Returns
+        -------
+        np.ndarray
+            [description]
         """
 
         kernel = Kernel.gaussian(kernel_size=kernel_size, std=std)
         output = signal.convolve2d(img, kernel)
-        print(output.shape)
         return output
 
     @staticmethod
-    def median(img: Sequence[int], kernel_size=3) -> np.ndarray:  # RGB
-        """median [summary]
-
-        Args:
-            img (np.ndarray): [description]
-            kernel (int, optional): [description]. Defaults to 3.
-
-        Returns:
-            np.ndarray: [description]
-        """
-
-        temp = []
-        filter_size = kernel_size
-        indexer = filter_size // 2
-        data = img.copy()
-        data_final = np.zeros((data.shape))
-        for i in range(len(data)):  # rows
-
-            for j in range(len(data[0])):  # columns
-
-                for z in range(filter_size):
-                    if i + z - indexer < 0 or i + z - indexer > len(data) - 1:
-                        for c in range(filter_size):
-                            temp.append(0)
-                    else:
-                        if j + z - indexer < 0 or j + indexer > len(data[0]) - 1:
-                            temp.append(0)
-                        else:
-                            for k in range(filter_size):
-                                temp.append(
-                                    data[i + z - indexer][j + k - indexer])
-
-                temp.sort()
-                data_final[i][j] = temp[len(temp) // 2]
-                temp = []
-        return data_final
-
-        # n_rows, n_cols = img.shape[0], img.shape[1]
-        # output= np.zeros((n_rows-kernel+1, n_cols-kernel+1))
-        # output = img[1:n_rows-1,1:n_cols-1]
-        # convoltution_mask = np.zeros((kernel, kernel))
-
-        # edge_name = ["kernel_left_x", "kernel_right_x",
-        #              "kernel_upper_y", "kernel_lower_y"]
-        # kernel_edges = np.zeros(4)
-        # count =
-        # for row in range(n_rows-1):
-        #     for col in range(n_cols-1):
-        #         kernel_center = np.array([(kernel//2)+row, (kernel//2)+col])
-        #         kernel_left_x = kernel_edges[0] = kernel_center[0] - kernel//2
-        #         kernel_right_x = kernel_edges[1] = kernel_center[0] + kernel//2
-        #         kernel_upper_y = kernel_edges[2] = kernel_center[1] - kernel//2
-        #         kernel_lower_y = kernel_edges[3] = kernel_center[1] + kernel//2
-
-        #         if (is_convolution_in_bounds(img.shape, kernel_edges) == False) :
-        #             continue
-        #         # print(kernel_center)
-        #         # print(kernel_edges)
-        #         convoltution_mask[:, :] = img[kernel_upper_y:(kernel_lower_y +
-        #                                       1), kernel_left_x:(kernel_right_x+1)]
-        #         # print(convoltution_mask.shape)
-        #         sorted_mask = np.sort(
-        #             convoltution_mask.flatten(), kind="mergesort")
-        #         print(sorted_mask)
-        #         median = sorted_mask[len(sorted_mask)//2+1]
-        #         print("pixel is: ",img[row,col])
-        #         print("median is :", median)
-        #         # print(median)
-        #         output[row, col] = median
-        # return output
-
-    @staticmethod
     def sobel(img: np.ndarray, direction="x", kernel_size=3, magnitude=True) -> np.ndarray:
-        """sobel [summary]
+        """
+        sobel [summary: The Process of Canny edge detection algorithm can be broken down to 5 different steps:
 
-        Args:
-            img (np.ndarray): [description]
-            direction (str, optional): [description]. Defaults to "x".
-            kernel_size (int, optional): [description]. Defaults to 3.
+                    Apply Gaussian filter to smooth the image in order to remove the noise
+                    Find the intensity gradients of the image
+                    Apply gradient magnitude thresholding or lower bound cut-off suppression to get rid of spurious response to edge detection
+                    Apply double threshold to determine potential edges
+                    Track edge by hysteresis: Finalize the detection of edges by suppressing all the other edges that are weak and not connected to strong edges.]
 
-        Returns:
-            np.ndarray: [description]
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        direction : str, optional
+            [description], by default "x"
+        kernel_size : int, optional
+            [description], by default 3
+        magnitude : bool, optional
+            [description], by default True
+
+        Returns
+        -------
+        np.ndarray
+            [description]
         """
         if direction.lower() == "xy":
             return Filter.sobel(img, direction="x", kernel_size=kernel_size) + Filter.sobel(img, direction="y", kernel_size=kernel_size)
@@ -160,15 +100,32 @@ class Filter:
 
     @staticmethod
     def prewitt(img: np.ndarray, direction="x", kernel_size=3, magnitude=True) -> np.ndarray:
-        """prewitt [summary]
-
-        Args:
-            img (np.ndarray): [description]
-            direction (str, optional): [description]. Defaults to "x".
-
-        Returns:
-            np.ndarray: [description]
         """
+        prewitt [summary]
+
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        direction : str, optional
+            [description], by default "x"
+        kernel_size : int, optional
+            [description], by default 3
+        magnitude : bool, optional
+            [description], by default True
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+
+        Raises
+        ------
+        ValueError
+            [description]
+        """
+        if direction.lower() not in ["x", "y", "xy"]:
+            raise ValueError("direction must be 'x' or 'y' or 'xy' ")
         if direction.lower() == "xy":
             return Filter.prewitt(img, direction="x", kernel_size=kernel_size) + Filter.prewitt(img, direction="y", kernel_size=kernel_size)
         else:
@@ -181,25 +138,33 @@ class Filter:
             return output
 
     # https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
+
     @staticmethod
-    def canny(img: np.ndarray, min_value=230, max_value=250) -> np.ndarray:
-        """canny [The Process of Canny edge detection algorithm can be broken down to 5 different steps:
-
-                    Apply Gaussian filter to smooth the image in order to remove the noise
-                    Find the intensity gradients of the image
-                    Apply gradient magnitude thresholding or lower bound cut-off suppression to get rid of spurious response to edge detection
-                    Apply double threshold to determine potential edges
-                    Track edge by hysteresis: Finalize the detection of edges by suppressing all the other edges that are weak and not connected to strong edges.]
-
-        Args:
-            img (np.ndarray): [description]
-            min_value (int): [description]
-            max_value (int): [description]
-
-        Returns:
-            np.ndarray: [description]
+    def canny(img: np.ndarray, min_value=230, max_value=250):
         """
-        assert img.ndim == 2  # canny works only with grayscale images
+        canny [summary]
+
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        min_value : int, optional
+            [description], by default 230
+        max_value : int, optional
+            [description], by default 250
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+
+        Raises
+        ------
+        ValueError
+            [description]
+        """
+        if not (img.ndim == 2):
+            raise ValueError("canny works only with grayscale images")
         smoothed = Filter.gaussian(img)
         grad_x = Filter.sobel(smoothed, direction="x",
                               kernel_size=3, magnitude=True)
@@ -216,36 +181,60 @@ class Filter:
 
         hysteresis_output = Filter._hysteresis(
             thresholded, weak=weak_pixel_val, strong=strong_pixel_val)
-
+        print(hysteresis_output.shape)
         return hysteresis_output
 
-    # https://www.youtube.com/watch?v=9mLeVn8xzMw
     @staticmethod
     def low_pass_frequency(img: np.ndarray, cut_off_x=40, cut_off_y=40) -> np.ndarray:
-        """low_pass_frequency [https://plotly.com/python/v3/fft-filters/]
+        """
+        low_pass_frequency [summary]
 
-        Args:
-            img (np.ndarray): [description]
-            cutoff (int): [description]
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        cut_off_x : int, optional
+            [description], by default 40
+        cut_off_y : int, optional
+            [description], by default 40
 
-        Returns:
-            np.ndarray: [description]
+        Returns
+        -------
+        np.ndarray
+            [description]
         """
 
         ncols, nrows = img.shape[0], img.shape[1]
-        print(img.shape)
         gmask = Kernel.gaussian_frequency_mask(
             shape=(ncols, nrows), mode='low_pass', cut_off_x=cut_off_x, cut_off_y=cut_off_y, plot=False)
+        filtered_image = Filter._frequency_convolution(img, gmask)
+        return filtered_image
+
+    @classmethod
+    def _frequency_convolution(cls, img: np.ndarray, filter: np.ndarray) -> np.ndarray:
+        """
+        _frequency_convolution [summary]
+
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        filter : np.ndarray
+            [description]
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
         ftimage = np.fft.fft2(img)
-
         ftimage = np.fft.fftshift(ftimage)
-        ftimagep = ftimage * gmask.T  # product instead of convolution
+        ftimagep = ftimage * filter.T  # product instead of convolution
+        # take the inverse transform and return the absolute of the filtered image
+        imagep = np.abs(np.fft.ifft2(ftimagep))
 
-        # take the inverse transform and return blurred image
-        imagep = np.fft.ifft2(ftimagep)
         return imagep
 
-    # https://www.youtube.com/watch?v=9mLeVn8xzMw
     @staticmethod
     def high_pass_frequency(img: np.ndarray, cut_off_x=50, cut_off_y=50) -> np.ndarray:
         """high_pass_frequency [https://plotly.com/python/v3/fft-filters/]
@@ -260,17 +249,26 @@ class Filter:
         ncols, nrows = img.shape[0], img.shape[1]
         gmask = Kernel.gaussian_frequency_mask(
             shape=(ncols, nrows), mode='high_pass', cut_off_x=cut_off_x, cut_off_y=cut_off_y, plot=False)
-        ftimage = np.fft.fft2(img)
-
-        ftimage = np.fft.fftshift(ftimage)
-        ftimagep = ftimage * gmask.T  # product instead of convolution
-
-        # take the inverse transform and return blurred image
-        imagep = np.fft.ifft2(ftimagep)
-        return imagep
+        filtered_image = Filter._frequency_convolution(img, gmask)
+        return filtered_image
 
     @classmethod
-    def _non_max_suppression(cls, img, grad_direction):
+    def _non_max_suppression(cls, img: np.ndarray, grad_direction: np.ndarray) -> np.ndarray:
+        """
+        _non_max_suppression [summary]
+
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        grad_direction : np.ndarray
+            [description]
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
         Rows, Columns = img.shape[0], img.shape[1]
         Z = np.zeros((Rows, Columns), dtype=np.int32)
         angle = grad_direction * 180. / np.pi
@@ -310,7 +308,28 @@ class Filter:
         return Z
 
     @classmethod
-    def _threshold(cls, img, lowThresholdRatio=0.05, highThresholdRatio=0.09, min_edge_thresh=40, max_edge_thresh=70):
+    def _threshold(cls, img: np.ndarray, lowThresholdRatio=0.05, highThresholdRatio=0.09, min_edge_thresh=40, max_edge_thresh=70) -> np.ndarray:
+        """
+        _threshold [summary]
+
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        lowThresholdRatio : float, optional
+            [description], by default 0.05
+        highThresholdRatio : float, optional
+            [description], by default 0.09
+        min_edge_thresh : int, optional
+            [description], by default 40
+        max_edge_thresh : int, optional
+            [description], by default 70
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
 
         highThreshold = np.max(img) * highThresholdRatio
         lowThreshold = highThreshold * lowThresholdRatio
@@ -332,8 +351,25 @@ class Filter:
 
         return (res, weak_pixel_val, strong_pixel_val)
 
-    @ classmethod
-    def _hysteresis(cls, image, weak=25, strong=255):
+    @classmethod
+    def _hysteresis(cls, image: np.ndarray, weak=25, strong=255) -> np.ndarray:
+        """
+        _hysteresis [summary]
+
+        Parameters
+        ----------
+        image : np.ndarray
+            [description]
+        weak : int, optional
+            [description], by default 25
+        strong : int, optional
+            [description], by default 255
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
         img = np.copy(image)
         rows, columns = img.shape[0], img.shape[1]
         for row in range(1, rows-1):
@@ -353,8 +389,27 @@ class Filter:
 
 
 class Kernel:
+    """
+    Collection of methods that implements differnt spatial kernels and frequency domain Masks
+    """
+
     @staticmethod
-    def average(kernel_size=3, plot=False):
+    def average(kernel_size=3, plot=False) -> np.ndarray:
+        """
+        average [summary]
+
+        Parameters
+        ----------
+        kernel_size : int, optional
+            [description], by default 3
+        plot : bool, optional
+            [description], by default False
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
         avg_kernel = np.ones((kernel_size, kernel_size))
         avg_kernel = (1/avg_kernel.size) * avg_kernel
         if plot:
@@ -362,10 +417,26 @@ class Kernel:
         return avg_kernel
 
     @staticmethod
-    def gaussian(kernel_size=3, std=1, plot=False):
+    def gaussian(kernel_size=3, std=1, plot=False) -> np.ndarray:
+        """
+        gaussian [summary]
+
+        Parameters
+        ----------
+        kernel_size : int, optional
+            [description], by default 3
+        std : int, optional
+            [description], by default 1
+        plot : bool, optional
+            [description], by default False
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
         kernel_size = kernel_size//2
         x = np.arange(-kernel_size, kernel_size+1, 1)
-        print(x)
         y = np.arange(-kernel_size, kernel_size+1, 1)
         x, y = np.meshgrid(x, y)
         # gauss_kernel = (1/(2*np.pi*std**2))*np.exp(-((x**2+y**2)/(2*std**2)))
@@ -376,7 +447,29 @@ class Kernel:
         return gauss_kernel
 
     @staticmethod
-    def sobel(direction="x", kernel_size=3, plot=False):
+    def sobel(direction="x", kernel_size=3, plot=False) -> np.ndarray:
+        """
+        sobel [summary]
+
+        Parameters
+        ----------
+        direction : str, optional
+            [description], by default "x"
+        kernel_size : int, optional
+            [description], by default 3
+        plot : bool, optional
+            [description], by default False
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+
+        Raises
+        ------
+        ValueError
+            [description]
+        """
         if direction.lower() not in ["x", "y"]:
             raise ValueError("Undefined direction, use x or y")
         a = np.ones((kernel_size, 1))
@@ -389,7 +482,29 @@ class Kernel:
         return sobel_kernel
 
     @staticmethod
-    def prewitt(kernel_size=3, direction="x", plot=False):
+    def prewitt(kernel_size=3, direction="x", plot=False) -> np.ndarray:
+        """
+        prewitt [summary]
+
+        Parameters
+        ----------
+        kernel_size : int, optional
+            [description], by default 3
+        direction : str, optional
+            [description], by default "x"
+        plot : bool, optional
+            [description], by default False
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+
+        Raises
+        ------
+        ValueError
+            [description]
+        """
         if direction.lower() not in ["x", "y"]:
             raise ValueError("Undefined direction, use x or y")
         a = np.ones((kernel_size, 1))
@@ -401,7 +516,33 @@ class Kernel:
         return prewitt_kernel
 
     @staticmethod
-    def gaussian_frequency_mask(shape: tuple, mode="low_pass", cut_off_x=40, cut_off_y=40, plot=False):
+    def gaussian_frequency_mask(shape: tuple, mode="low_pass", cut_off_x=40, cut_off_y=40, plot=False) -> np.ndarray:
+        """
+        gaussian_frequency_mask [summary]
+
+        Parameters
+        ----------
+        shape : tuple
+            [description]
+        mode : str, optional
+            [description], by default "low_pass"
+        cut_off_x : int, optional
+            [description], by default 40
+        cut_off_y : int, optional
+            [description], by default 40
+        plot : bool, optional
+            [description], by default False
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+
+        Raises
+        ------
+        ValueError
+            [description]
+        """
         if mode.lower() not in ["low_pass", "high_pass"]:
             raise ValueError(
                 "please provide a valid mode either low_pass or high_pass")
@@ -420,7 +561,28 @@ class Kernel:
             Kernel._plot(gmask, mode="3d", x=X, y=Y)
         return gmask
 
-    def circular_frequency_mask(shape: tuple, mode="low_pass", cut_off_x=40, cut_off_y=40, plot=False):
+    def circular_frequency_mask(shape: tuple, mode="low_pass", cut_off_x=40, cut_off_y=40, plot=False) -> np.ndarray:
+        """
+        circular_frequency_mask [summary]
+
+        Parameters
+        ----------
+        shape : tuple
+            [description]
+        mode : str, optional
+            [description], by default "low_pass"
+        cut_off_x : int, optional
+            [description], by default 40
+        cut_off_y : int, optional
+            [description], by default 40
+        plot : bool, optional
+            [description], by default False
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
         ncols, nrows = shape[0], shape[1]
         centerY, centerX = nrows//2, ncols//2
         x = np.linspace(0, ncols, ncols)  # horizontal
@@ -429,7 +591,7 @@ class Kernel:
         mask = np.zeros((shape))
         area = cut_off_x**2+cut_off_y**2
         if mode.lower() == "low_pass":
-            mask_area = ((X-centerX))**2 + ((Y-centerY))**2   <=  area        
+            mask_area = ((X-centerX))**2 + ((Y-centerY))**2 <= area
         else:  # high_pass
             mask_area = ((X-centerX))**2 + ((Y-centerY))**2 >= area
         if plot:
@@ -438,7 +600,17 @@ class Kernel:
         return mask.T
 
     @classmethod
-    def _plot(cls, kernel, mode="2d", **kwargs):
+    def _plot(cls, kernel: np.ndarray, mode="2d", **kwargs):
+        """
+        _plot [summary]
+
+        Parameters
+        ----------
+        kernel : np.ndarray
+            [description]
+        mode : str, optional
+            [description], by default "2d"
+        """
         if mode.lower() == "2d":
             plt.imshow(kernel, cmap=plt.get_cmap(
                 'jet'), interpolation='nearest')
@@ -453,15 +625,15 @@ class Kernel:
 
 if __name__ == '__main__':
 
-    img = mpimg.imread("small_img.png")
-    print(img.ndim)
-    def gray(rgb): return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
+    img = mpimg.imread("gray.jpg")
+    # print(img.ndim)
     img = gray(img)
     # noisy = Noise.uniform(img)
     # noisy = Noise.gaussian(img)
     # noisy = Noise.salt_pepper(img)
     # smooth = Filter.gaussian(img, kernel_size=5)
-    filtered = Filter.high_pass_frequency(img,cut_off_x=35,cut_off_y=35)
+    filtered = Filter.prewitt(img)
+    # filtered = Filter.high_pass_frequency(img, cut_off_x=35, cut_off_y=35)
     # mask = filtered[:, :] > 150
     # filtered = np.zeros((filtered.shape))
     # filtered[mask] = 255
@@ -469,10 +641,10 @@ if __name__ == '__main__':
     # Kernel.sobel(kernel_size=5, direction='g', plot=True)
 
     f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
-    ax[0].imshow(np.abs(filtered), cmap="gray")
+    ax[0].imshow(img, cmap="gray")
     ax[0].set_title("Noisy Image")
-    # ax[1].set_title("Filtered Image")
-    # ax[1].imshow(filtered,cmap="gray")
+    ax[1].set_title("Filtered Image")
+    ax[1].imshow(np.abs(filtered), cmap="gray")
     plt.axis("off")
 
     plt.show()
