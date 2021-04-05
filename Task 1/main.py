@@ -7,6 +7,7 @@ import GUI
 from imageModel import ImageModel as IM
 from Noises import Noise
 from Filters import Filter
+from ImgUtils import ImgUtils as IU
 
 
 class ApplicationWindow(GUI.Ui_MainWindow):
@@ -26,6 +27,13 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.hybridA, self.hybridB, self.hybridImg
         ]
 
+        self.Loaders = [
+            self.filterLoader,
+            self.histLoader,
+            self.hybridLoaderA,
+            self.hybridLoaderB
+        ]
+
         self.Checks = [
             self.noiseUniform_check,
             self.noiseGaussian_check,
@@ -41,20 +49,26 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         ]
 
     def initBtns(self):
-        self.filterLoader.clicked.connect(lambda: self.filterDisp(0))
+        self.filterLoader.clicked.connect(lambda: self.Disp(0))
         self.filterApply_btn.clicked.connect(lambda: self.filter())
+
+        self.Loaders[2].clicked.connect(lambda: self.Disp(6))
+        self.Loaders[3].clicked.connect(lambda: self.Disp(7))
+        self.mergeBtn.clicked.connect(lambda: self.makeHybrid())
+        
     
     def initChecks(self):
         pass
 
     def Init(self):
-        self.ImgUp = [False, False, False, False]
+        self.ImgUp = [False, False, False, False, False]
         self.filterImg = IM("Waiting.png")
         self.filteredImg = IM("Waiting.png")
         self.histImg = IM("Waiting.png")
-        self.hybridImaA = IM("Waiting.png")
-        self.hybridImaB = IM("Waiting.png")
-        self.Imgs = [self.filterImg, self.filteredImg, self.histImg, self.hybridImaA, self.hybridImaB]
+        self.hybridImgA = IM("Waiting.png")
+        self.hybridImgB = IM("Waiting.png")
+        self.hybridImgRes = IM("Waiting.png")
+        self.Imgs = [self.filterImg, self.filteredImg, self.histImg, self.hybridImgA, self.hybridImgB,self.hybridImgRes]
 
     def disableViewerControls(self):
         i = 0
@@ -90,13 +104,22 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             else:
                 self.ImgUp[i] = True
 
-    def filterDisp(self, i):
-        self.getImage(i)
+    def Disp(self, i):
+        if i == 6 or i == 7:
+            self.getImage(i - 3)
+            
+            if self.ImgUp[i-3]:
+                print(self.Imgs[i-3].imgByte.shape)
+                self.Viewers[i].setImage(self.Imgs[i-3].imgByte.T)
+                self.switchControls(False)
+        
+        else:
+            self.getImage(i)
 
-        if self.ImgUp[i]:
-            print(self.Imgs[i].imgByte.shape)
-            self.Viewers[i].setImage(self.Imgs[i].imgByte.T)
-            self.switchControls(False)
+            if self.ImgUp[i]:
+                print(self.Imgs[i].imgByte.shape)
+                self.Viewers[i].setImage(self.Imgs[i].imgByte.T)
+                self.switchControls(False)
 
     def filter(self):
         self.Imgs[1].imgByte = self.Imgs[0].imgByte
@@ -126,7 +149,9 @@ class ApplicationWindow(GUI.Ui_MainWindow):
 
         self.Viewers[1].setImage(self.Imgs[1].imgByte.T)
         
-            
+    def makeHybrid(self):
+        self.Imgs[5].imgByte = IU.hybrid(self.Imgs[3].imgByte, self.Imgs[4].imgByte)
+        self.Viewers[8].setImage(self.Imgs[5].imgByte.T)
 
 
 
