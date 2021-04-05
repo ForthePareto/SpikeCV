@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 class Noise:
 
     @staticmethod
-    def uniform(image: np.ndarray, amount=0.35) -> np.ndarray:
+    def uniform(image: np.ndarray, amount=0.001) -> np.ndarray:
         noise = amount*np.random.uniform(0, 255, size=image.shape)
         output = (noise + image)
 

@@ -58,6 +58,42 @@ class Filter:
         kernel = Kernel.gaussian(kernel_size=kernel_size, std=std)
         output = signal.convolve2d(img, kernel)
         return output
+        
+    @staticmethod
+    def median(img: np.ndarray, kernel_size=3) -> np.ndarray:  
+        """median [summary]
+        Args:
+            img (np.ndarray): [description]
+            kernel (int, optional): [description]. Defaults to 3.
+        Returns:
+            np.ndarray: [description]
+        """
+
+        temp = []
+        filter_size = kernel_size
+        indexer = filter_size // 2
+        data = img.copy()
+        data_final = np.zeros((data.shape))
+        for row in range(len(data)):  # rows
+
+            for column in range(len(data[0])):  # columns
+
+                for z in range(filter_size):
+                    if row + z - indexer < 0 or row + z - indexer > len(data) - 1:
+                        for c in range(filter_size):
+                            temp.append(0)
+                    else:
+                        if column + z - indexer < 0 or column + indexer > len(data[0]) - 1:
+                            temp.append(0)
+                        else:
+                            for k in range(filter_size):
+                                temp.append(
+                                    data[row + z - indexer][column + k - indexer])
+
+                temp.sort()
+                data_final[row][column] = temp[len(temp) // 2]
+                temp = []
+        return data_final
 
     @staticmethod
     def sobel(img: np.ndarray, direction="x", kernel_size=3, magnitude=True) -> np.ndarray:
@@ -630,9 +666,9 @@ if __name__ == '__main__':
     img = gray(img)
     # noisy = Noise.uniform(img)
     # noisy = Noise.gaussian(img)
-    # noisy = Noise.salt_pepper(img)
-    # smooth = Filter.gaussian(img, kernel_size=5)
-    filtered = Filter.prewitt(img)
+    noisy = Noise.salt_pepper(img)
+    filtered = Filter.median(noisy, kernel_size=3)
+    # filtered = Filter.prewitt(img)
     # filtered = Filter.high_pass_frequency(img, cut_off_x=35, cut_off_y=35)
     # mask = filtered[:, :] > 150
     # filtered = np.zeros((filtered.shape))
@@ -641,10 +677,10 @@ if __name__ == '__main__':
     # Kernel.sobel(kernel_size=5, direction='g', plot=True)
 
     f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
-    ax[0].imshow(img, cmap="gray")
+    ax[0].imshow(noisy, cmap="gray")
     ax[0].set_title("Noisy Image")
     ax[1].set_title("Filtered Image")
-    ax[1].imshow(np.abs(filtered), cmap="gray")
+    ax[1].imshow(filtered, cmap="gray")
     plt.axis("off")
 
     plt.show()
