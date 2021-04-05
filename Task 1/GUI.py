@@ -288,7 +288,7 @@ class Ui_MainWindow(object):
         self.groupBox_8.setMinimumSize(QtCore.QSize(261, 271))
         self.groupBox_8.setMaximumSize(QtCore.QSize(261, 271))
         self.groupBox_8.setObjectName("groupBox_8")
-        self.histOutputGraph = ImageView(self.groupBox_8)
+        self.histOutputGraph = PlotWidget(self.groupBox_8)
         self.histOutputGraph.setGeometry(QtCore.QRect(10, 20, 241, 241))
         self.histOutputGraph.setMinimumSize(QtCore.QSize(241, 241))
         self.histOutputGraph.setMaximumSize(QtCore.QSize(241, 241))
@@ -298,7 +298,7 @@ class Ui_MainWindow(object):
         self.groupBox_7.setMinimumSize(QtCore.QSize(261, 271))
         self.groupBox_7.setMaximumSize(QtCore.QSize(261, 271))
         self.groupBox_7.setObjectName("groupBox_7")
-        self.histInputGraph = ImageView(self.groupBox_7)
+        self.histInputGraph = PlotWidget(self.groupBox_7)
         self.histInputGraph.setGeometry(QtCore.QRect(10, 20, 241, 241))
         self.histInputGraph.setMinimumSize(QtCore.QSize(241, 241))
         self.histInputGraph.setMaximumSize(QtCore.QSize(241, 241))
@@ -449,7 +449,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -497,7 +497,7 @@ class Ui_MainWindow(object):
         self.hybridInputBSize.setText(_translate("MainWindow", "Size:"))
         self.mergeBtn.setText(_translate("MainWindow", "Make Hybrid"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Hybrid), _translate("MainWindow", "Hybrid"))
-from pyqtgraph import ImageView
+from pyqtgraph import ImageView, PlotWidget
 
 
 if __name__ == "__main__":

@@ -20,6 +20,8 @@ class ImageModel():
         # ALL the following properties should be assigned correctly after reading imgPath 
         ###
         self.imgByte = mpimg.imread(self.imgPath)
+        self.imgHeight = self.imgByte.shape[0]
+        self.imgWidth = self.imgByte.shape[1]
     
     @staticmethod
     def gray(rgb):

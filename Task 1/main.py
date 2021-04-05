@@ -23,8 +23,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
     def initContainers(self):
         self.Viewers = [
             self.filterInput, self.filterOutput, self.histInput,
-            self.histOutput, self.histInputGraph, self.histOutputGraph,
-            self.hybridA, self.hybridB, self.hybridImg
+            self.histOutput, self.hybridA, self.hybridB, self.hybridImg
         ]
 
         self.Loaders = [
@@ -52,11 +51,13 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.filterLoader.clicked.connect(lambda: self.Disp(0))
         self.filterApply_btn.clicked.connect(lambda: self.filter())
 
-        self.Loaders[2].clicked.connect(lambda: self.Disp(6))
-        self.Loaders[3].clicked.connect(lambda: self.Disp(7))
+        self.Loaders[1].clicked.connect(lambda: self.Disp(2))
+
+        self.Loaders[2].clicked.connect(lambda: self.Disp(4))
+        self.Loaders[3].clicked.connect(lambda: self.Disp(5))
         self.mergeBtn.clicked.connect(lambda: self.makeHybrid())
-        
-    
+
+
     def initChecks(self):
         pass
 
@@ -72,7 +73,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
 
     def disableViewerControls(self):
         i = 0
-        while (i < 9):
+        while (i < 7):
             self.Viewers[i].ui.histogram.hide()
             self.Viewers[i].ui.roiBtn.hide()
             self.Viewers[i].ui.roiPlot.hide()
@@ -106,20 +107,23 @@ class ApplicationWindow(GUI.Ui_MainWindow):
 
     def Disp(self, i):
         if i == 6 or i == 7:
-            self.getImage(i - 3)
-            
-            if self.ImgUp[i-3]:
-                print(self.Imgs[i-3].imgByte.shape)
-                self.Viewers[i].setImage(self.Imgs[i-3].imgByte.T)
+            self.getImage(i - 1)
+
+            if self.ImgUp[i-1]:
+                print(self.Imgs[i-1].imgByte.shape)
+                self.Viewers[i].setImage(self.Imgs[i-1].imgByte.T)
                 self.switchControls(False)
-        
+
         else:
             self.getImage(i)
 
             if self.ImgUp[i]:
-                print(self.Imgs[i].imgByte.shape)
+                print(self.Imgs[i].imgByte.shape[1])
                 self.Viewers[i].setImage(self.Imgs[i].imgByte.T)
-                self.switchControls(False)
+                if i == 0:
+                    self.switchControls(False)
+                elif i == 2:
+                    self.histogram()
 
     def filter(self):
         self.Imgs[1].imgByte = self.Imgs[0].imgByte
@@ -148,10 +152,19 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.Imgs[1].imgByte = Filter.high_pass_frequency(self.Imgs[1].imgByte)
 
         self.Viewers[1].setImage(self.Imgs[1].imgByte.T)
-        
+
+    def histogram(self):
+        if self.ImgUp[2]:
+            histogram, bin_edges = np.histogram(self.Imgs[2].imgByte,
+                                                bins=self.Imgs[2].imgWidth,
+                                                range=(self.Imgs[2].imgByte.min(),
+                                                       self.Imgs[2].imgByte.max()))
+            print(histogram)
+            self.histInputGraph.plot(bin_edges[:-1],histogram)
+
     def makeHybrid(self):
         self.Imgs[5].imgByte = IU.hybrid(self.Imgs[3].imgByte, self.Imgs[4].imgByte)
-        self.Viewers[8].setImage(self.Imgs[5].imgByte.T)
+        self.Viewers[6].setImage(self.Imgs[5].imgByte.T)
 
 
 
