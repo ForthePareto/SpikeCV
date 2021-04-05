@@ -44,7 +44,10 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.edgeRoberts_check,
             self.edgePrewitt_check,
             self.filterLowPass_btn,
-            self.filterhighPass_btn
+            self.filterhighPass_btn,
+            self.histEqualCheck,
+            self.histNormCheck,
+            self.histGTCheck
         ]
 
     def initBtns(self):
@@ -52,6 +55,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.filterApply_btn.clicked.connect(lambda: self.filter())
 
         self.Loaders[1].clicked.connect(lambda: self.Disp(2))
+        self.histApply_btn.clicked.connect(lambda: self.histFunctions())
 
         self.Loaders[2].clicked.connect(lambda: self.Disp(4))
         self.Loaders[3].clicked.connect(lambda: self.Disp(5))
@@ -160,7 +164,32 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                                                 range=(self.Imgs[2].imgByte.min(),
                                                        self.Imgs[2].imgByte.max()))
             print(histogram)
-            self.histInputGraph.plot(bin_edges[:-1],histogram)
+            self.histInputGraph.plot(bin_edges[:-1], histogram)
+    
+    def histFunctions(self):
+        res = self.Imgs[2].imgByte
+        if (self.Checks[11].isChecked()):
+            res = IU.histogramEqualization(self.Imgs[2].imgByte)
+        elif (self.Checks[12].isChecked()):
+            res = self.normalize(self.Imgs[2].imgByte,0,255)
+        elif (self.Checks[13].isChecked()):
+            res = IU.globalThresholding(self.Imgs[2].imgByte, 150)
+            
+        self.Viewers[3].setImage(res.T)
+        histogram, bin_edges = np.histogram(res,
+                                                bins=res.shape[1],
+                                                range=(res.min(),
+                                                       res.max()))
+        print(histogram)
+        self.histOutputGraph.plot(bin_edges[:-1], histogram)
+
+    def normalize(self,frame: np.ndarray, newMin: float, newMax: float):
+        newFrame = np.copy(frame)
+        mini = frame.min()
+        maxi = frame.max()
+        newFrame = (newFrame - mini) * ((newMax - newMin) / (maxi - mini)) + newMin
+
+        return newFrame.astype(np.uint8)
 
     def makeHybrid(self):
         self.Imgs[5].imgByte = IU.hybrid(self.Imgs[3].imgByte, self.Imgs[4].imgByte)
