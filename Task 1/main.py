@@ -110,7 +110,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                 self.ImgUp[i] = True
 
     def Disp(self, i):
-        if i == 6 or i == 7:
+        if i == 4 or i == 5:
             self.getImage(i - 1)
 
             if self.ImgUp[i-1]:
