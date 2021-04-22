@@ -3,12 +3,22 @@ from scipy import signal
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 from Noises import Noise
+from PIL import Image
+
+
+def rgba2rgb(rgba):
+    return rgba[:,:,:-1]
 
 
 def gray(rgb):
-    if not (rgb.ndim == 3):
-        raise ValueError("input must be 3-dimensional")
-    return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
+    if (rgb.ndim == 2):
+        return rgb
+    elif rgb.shape[-1] == 4:
+        print("rgba image to gray")
+        rgb = rgba2rgb(rgb)
+        return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
+    else:
+        return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
 
 
 class Filter:
@@ -32,7 +42,7 @@ class Filter:
         """
 
         avg_kernel = Kernel.average(kernel_size=kernel_size)
-        output = signal.convolve2d(img, avg_kernel)
+        output = signal.convolve2d(img, avg_kernel, mode="same")
         return output
 
     @staticmethod
@@ -56,11 +66,11 @@ class Filter:
         """
 
         kernel = Kernel.gaussian(kernel_size=kernel_size, std=std)
-        output = signal.convolve2d(img, kernel)
+        output = signal.convolve2d(img, kernel, mode="same")
         return output
-        
+
     @staticmethod
-    def median(img: np.ndarray, kernel_size=3) -> np.ndarray:  
+    def median(img: np.ndarray, kernel_size=3) -> np.ndarray:
         """median [summary]
         Args:
             img (np.ndarray): [description]
@@ -74,9 +84,10 @@ class Filter:
         indexer = filter_size // 2
         data = img.copy()
         data_final = np.zeros((data.shape))
-        for row in range(len(data)):  # rows
 
-            for column in range(len(data[0])):  # columns
+        for row in range(data.shape[0]):  # rows
+
+            for column in range(data.shape[1]):  # columns
 
                 for z in range(filter_size):
                     if row + z - indexer < 0 or row + z - indexer > len(data) - 1:
@@ -127,7 +138,7 @@ class Filter:
         else:
             sobel_kernel = Kernel.sobel(
                 direction=direction, kernel_size=kernel_size)
-            output = signal.convolve2d(img, sobel_kernel)
+            output = signal.convolve2d(img, sobel_kernel, mode="same")
 
         if magnitude:
             return np.abs(output)
@@ -167,7 +178,7 @@ class Filter:
         else:
             prewitt_kernel = Kernel.prewitt(
                 direction=direction, kernel_size=kernel_size)
-            output = signal.convolve2d(img, prewitt_kernel)
+            output = signal.convolve2d(img, prewitt_kernel, mode="same")
         if magnitude:
             return np.abs(output)
         else:
@@ -176,7 +187,7 @@ class Filter:
     # https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123
 
     @staticmethod
-    def canny(img: np.ndarray, min_value=230, max_value=250):
+    def canny(img: np.ndarray, min_value=100, max_value=200):
         """
         canny [summary]
 
@@ -200,16 +211,16 @@ class Filter:
             [description]
         """
         if not (img.ndim == 2):
-            raise ValueError("canny works only with grayscale images")
-        smoothed = Filter.gaussian(img)
+            img = gray(img)
+        smoothed = Filter.gaussian(img, kernel_size=5)
         grad_x = Filter.sobel(smoothed, direction="x",
                               kernel_size=3, magnitude=True)
         grad_y = Filter.sobel(smoothed, direction="y",
                               kernel_size=3, magnitude=True)
+
         Grad_xy = np.hypot(grad_x, grad_y)
         Grad_xy = Grad_xy / Grad_xy.max() * 255
         theta = np.arctan2(grad_y, grad_x)
-
         suppressed = Filter._non_max_suppression(Grad_xy, theta)
 
         thresholded, weak_pixel_val, strong_pixel_val = Filter._threshold(
@@ -217,8 +228,51 @@ class Filter:
 
         hysteresis_output = Filter._hysteresis(
             thresholded, weak=weak_pixel_val, strong=strong_pixel_val)
-        print(hysteresis_output.shape)
+
         return hysteresis_output
+
+    @staticmethod
+    def canny_superImpose(img: np.ndarray, min_value=40, max_value=220, edge_color="red") -> np.ndarray:
+        """
+        canny_superImpose [summary]
+
+        Parameters
+        ----------
+        img : np.ndarray
+            [description]
+        min_value : int, optional
+            [description], by default 40
+        max_value : int, optional
+            [description], by default 220
+        edge_color : str, optional
+            [description], by default "red"
+
+        Returns
+        -------
+        np.ndarray
+            [description]
+        """
+
+        colors = {"red": (255, 0, 0),
+                  "green": (255, 0, 0),
+                  "blue": (255, 0, 0),
+                  "yellow": (255, 255, 0)
+                  }
+        if edge_color.lower() not in colors.keys():
+            print("invalid edge color")
+            edge_color = "red"
+        if img.shape[-1] == 4:
+            img = rgba2rgb(img)
+        edges = Filter.canny(img, min_value=min_value, max_value=max_value)
+        super_imposed = np.copy(img)
+        if img.ndim == 2:
+            super_imposed[edges == 255] = 255
+        elif (img.ndim == 3) and img.shape[-1] == 3 :
+            super_imposed[edges == 255] = colors.get(edge_color.lower())
+        else:
+            print("undefined case")
+
+        return super_imposed
 
     @staticmethod
     def low_pass_frequency(img: np.ndarray, cut_off_x=40, cut_off_y=40) -> np.ndarray:
@@ -344,7 +398,7 @@ class Filter:
         return Z
 
     @classmethod
-    def _threshold(cls, img: np.ndarray, lowThresholdRatio=0.05, highThresholdRatio=0.09, min_edge_thresh=40, max_edge_thresh=70) -> np.ndarray:
+    def _threshold(cls, img: np.ndarray, lowThresholdRatio=0.05, highThresholdRatio=0.09, min_edge_thresh=100, max_edge_thresh=220) -> np.ndarray:
         """
         _threshold [summary]
 
@@ -367,10 +421,10 @@ class Filter:
             [description]
         """
 
-        highThreshold = np.max(img) * highThresholdRatio
-        lowThreshold = highThreshold * lowThresholdRatio
-        # highThreshold = max_edge_thresh
-        # lowThreshold = min_edge_thresh
+        # highThreshold = np.max(img) * highThresholdRatio
+        # lowThreshold = highThreshold * lowThresholdRatio
+        highThreshold = min_edge_thresh
+        lowThreshold = max_edge_thresh
 
         M, N = img.shape[0], img.shape[1]
         res = np.zeros((M, N), dtype=np.int32)
@@ -661,14 +715,16 @@ class Kernel:
 
 if __name__ == '__main__':
 
-    img = mpimg.imread("gray.jpg")
+    img1 = mpimg.imread("bf_edges.jpg")
     # print(img.ndim)
-    img = gray(img)
-    # noisy = Noise.uniform(img)
-    # noisy = Noise.gaussian(img)
-    noisy = Noise.salt_pepper(img)
-    filtered = Filter.median(noisy, kernel_size=3)
-    # filtered = Filter.prewitt(img)
+    img = gray(img1)
+    print(img.shape)
+    # noisy = Noise.uniform(img, amount=0.2)
+    # noisy = Noise.gaussian(img,amount=0.1)
+    # noisy = Noise.salt_pepper(img,amount=0.2)
+    filtered = Filter.canny_superImpose(img1, min_value=60, max_value=220)
+    # filteredCV += img
+    # filtered += Filter.sobel(noisy, direction="xy")
     # filtered = Filter.high_pass_frequency(img, cut_off_x=35, cut_off_y=35)
     # mask = filtered[:, :] > 150
     # filtered = np.zeros((filtered.shape))
@@ -677,8 +733,8 @@ if __name__ == '__main__':
     # Kernel.sobel(kernel_size=5, direction='g', plot=True)
 
     f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
-    ax[0].imshow(noisy, cmap="gray")
-    ax[0].set_title("Noisy Image")
+    ax[0].imshow(img1, cmap="gray")
+    ax[0].set_title("pre Image")
     ax[1].set_title("Filtered Image")
     ax[1].imshow(filtered, cmap="gray")
     plt.axis("off")
