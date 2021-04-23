@@ -4,10 +4,11 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 from Noises import Noise
 from PIL import Image
+import math
 
 
 def rgba2rgb(rgba):
-    return rgba[:,:,:-1]
+    return rgba[:, :, :-1]
 
 
 def gray(rgb):
@@ -231,8 +232,30 @@ class Filter:
 
         return hysteresis_output
 
+    @classmethod
+    def _superimpose(cls, img: np.ndarray, binary: np.ndarray, color="blue") -> np.ndarray:
+        colors = {"red": (255, 0, 0),
+                  "green": (0, 255, 0),
+                  "blue": (0, 0, 255),
+                  "yellow": (255, 255, 0)
+                  }
+        if color.lower() not in colors.keys():
+            print("invalid edge color")
+            color = "red"
+        if img.shape[-1] == 4:
+            img = rgba2rgb(img)
+        super_imposed = np.copy(img)
+        if img.ndim == 2:
+            super_imposed[binary == 255] = 255
+        elif (img.ndim == 3) and img.shape[-1] == 3:
+            super_imposed[binary == 255] = colors.get(color.lower())
+        else:
+            print("undefined case")
+
+        return super_imposed
+
     @staticmethod
-    def canny_superImpose(img: np.ndarray, min_value=40, max_value=220, edge_color="red") -> np.ndarray:
+    def canny_superImpose(img: np.ndarray, min_value=40, max_value=220, edge_color="blue") -> np.ndarray:
         """
         canny_superImpose [summary]
 
@@ -245,34 +268,75 @@ class Filter:
         max_value : int, optional
             [description], by default 220
         edge_color : str, optional
-            [description], by default "red"
+            [description], by default "blues"
 
         Returns
         -------
         np.ndarray
             [description]
         """
-
-        colors = {"red": (255, 0, 0),
-                  "green": (255, 0, 0),
-                  "blue": (255, 0, 0),
-                  "yellow": (255, 255, 0)
-                  }
-        if edge_color.lower() not in colors.keys():
-            print("invalid edge color")
-            edge_color = "red"
         if img.shape[-1] == 4:
             img = rgba2rgb(img)
         edges = Filter.canny(img, min_value=min_value, max_value=max_value)
-        super_imposed = np.copy(img)
-        if img.ndim == 2:
-            super_imposed[edges == 255] = 255
-        elif (img.ndim == 3) and img.shape[-1] == 3 :
-            super_imposed[edges == 255] = colors.get(edge_color.lower())
-        else:
-            print("undefined case")
+        super_imposed = Filter._superimpose(img, edges, color=edge_color)
 
         return super_imposed
+
+    @staticmethod
+    def lines_superImpose(img: np.ndarray, histress_low=40, histress_high=220, angle_step=1, value_threshold=26, min_line_votes=90, edge_color="red") -> np.ndarray:
+        edges = Filter.canny(img, min_value=histress_low, max_value=histress_high)
+        lines_binary = Filter.hough_line(edges, angle_step=1, value_threshold=26, min_line_votes=90)
+        super_imposed = Filter._superimpose(img, lines_binary, color=edge_color)
+
+        return super_imposed
+
+
+
+    @staticmethod
+    def hough_line(img, angle_step=1, value_threshold=26, min_line_votes=90):
+        width, height = img.shape
+        thetas = np.deg2rad(np.arange(-90.0, 90.0, angle_step))
+        diag_len = int(round(math.sqrt(width ** 2 + height ** 2)))
+        rhos = np.linspace(-diag_len, diag_len, diag_len * 2)
+        cos_t = np.cos(thetas)
+        sin_t = np.sin(thetas)
+        num_thetas = len(thetas)
+
+        # Hough accumulator array of theta(rows) , rho(columns)
+        accumulator = np.zeros((2 * diag_len, num_thetas), dtype=np.uint8)
+        # (row, col) indexes to edges
+        are_edges = img > value_threshold
+        y_idxs, x_idxs = np.nonzero(are_edges)
+
+        # Vote in the hough accumulator
+        for i in range(len(x_idxs)):
+            x = x_idxs[i]
+            y = y_idxs[i]
+
+            for t_idx in range(num_thetas):
+                # Calculate rho. diag_len is added for a positive index
+                rho = diag_len + \
+                    int(round(x * cos_t[t_idx] + y * sin_t[t_idx]))
+                accumulator[rho, t_idx] += 1
+
+        satisfying_lines = accumulator >= min_line_votes
+        x, y = np.meshgrid(thetas, rhos)
+        lines = np.dstack((x, y))[satisfying_lines]
+        if len(lines) ==0 :
+            print("max votes at lines accumulator: ",np.max(accumulator))
+            raise ValueError("No Lines found, try to decrease the min_line_votes_param")
+        for rho, theta in lines:
+            a = np.cos(theta)
+            b = np.sin(theta)
+            x0 = a*rho
+            y0 = b*rho
+            x1 = int(x0 + 1000*(-b))
+            y1 = int(y0 + 1000*(a))
+            x2 = int(x0 - 1000*(-b))
+            y2 = int(y0 - 1000*(a))
+            import cv2
+            lines_img = cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+        return lines_img
 
     @staticmethod
     def low_pass_frequency(img: np.ndarray, cut_off_x=40, cut_off_y=40) -> np.ndarray:
@@ -715,14 +779,15 @@ class Kernel:
 
 if __name__ == '__main__':
 
-    img1 = mpimg.imread("bf_edges.jpg")
+    img1 = mpimg.imread("flower_edges.jpg")
     # print(img.ndim)
     img = gray(img1)
     print(img.shape)
     # noisy = Noise.uniform(img, amount=0.2)
     # noisy = Noise.gaussian(img,amount=0.1)
     # noisy = Noise.salt_pepper(img,amount=0.2)
-    filtered = Filter.canny_superImpose(img1, min_value=60, max_value=220)
+    # filtered = Filter.canny_superImpose(img1,min_value=30,max_value=240,edge_color="blue")
+    filtered = Filter.lines_superImpose(img1, histress_low=50, histress_high=250, min_line_votes=20,edge_color="green")
     # filteredCV += img
     # filtered += Filter.sobel(noisy, direction="xy")
     # filtered = Filter.high_pass_frequency(img, cut_off_x=35, cut_off_y=35)
@@ -731,12 +796,28 @@ if __name__ == '__main__':
     # filtered[mask] = 255
     # Filter.gaussian(img)
     # Kernel.sobel(kernel_size=5, direction='g', plot=True)
-
+    
     f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
     ax[0].imshow(img1, cmap="gray")
-    ax[0].set_title("pre Image")
-    ax[1].set_title("Filtered Image")
+    ax[0].set_title("Original Img")
+    ax[0].axis("off")
+    ax[1].set_title("Hough lines superimposed Image")
     ax[1].imshow(filtered, cmap="gray")
     plt.axis("off")
 
     plt.show()
+
+    # img1 = mpimg.imread("horizontal.jpg")
+    # # print(img.ndim)
+    # img = gray(img1)
+    # print(img.shape)
+    # edges = Filter.canny(img, min_value=60, max_value=220)
+    # lines = Filter.hough_line(edges, min_line_votes=120)
+    # f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
+    # ax[0].imshow(img1, cmap="gray")
+    # ax[0].set_title("pre Image")
+    # ax[1].set_title("Filtered Image")
+    # ax[1].imshow(lines, cmap="gray")
+    # plt.axis("off")
+
+    # plt.show()
