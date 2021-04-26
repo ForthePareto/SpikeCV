@@ -213,7 +213,7 @@ class Filter:
         """
         if not (img.ndim == 2):
             img = gray(img)
-        smoothed = Filter.gaussian(img, kernel_size=5)
+        smoothed = Filter.gaussian(img, kernel_size=7)
         grad_x = Filter.sobel(smoothed, direction="x",
                               kernel_size=3, magnitude=True)
         grad_y = Filter.sobel(smoothed, direction="y",
@@ -249,6 +249,7 @@ class Filter:
             super_imposed[binary == 255] = 255
         elif (img.ndim == 3) and img.shape[-1] == 3:
             super_imposed[binary == 255] = colors.get(color.lower())
+
         else:
             print("undefined case")
 
@@ -284,17 +285,18 @@ class Filter:
 
     @staticmethod
     def lines_superImpose(img: np.ndarray, histress_low=40, histress_high=220, angle_step=1, value_threshold=26, min_line_votes=90, edge_color="red") -> np.ndarray:
-        edges = Filter.canny(img, min_value=histress_low, max_value=histress_high)
-        lines_binary = Filter.hough_line(edges, angle_step=1, value_threshold=26, min_line_votes=90)
-        super_imposed = Filter._superimpose(img, lines_binary, color=edge_color)
+        edges = Filter.canny(img, min_value=histress_low,
+                             max_value=histress_high)
+        lines_binary = Filter.hough_line(
+            edges, angle_step=1, value_threshold=26, min_line_votes=90)
+        super_imposed = Filter._superimpose(
+            img, lines_binary, color=edge_color)
 
         return super_imposed
 
-
-
     @staticmethod
     def hough_line(img, angle_step=1, value_threshold=26, min_line_votes=90):
-        width, height = img.shape
+        width, height = img.shape[0], img.shape[1]
         thetas = np.deg2rad(np.arange(-90.0, 90.0, angle_step))
         diag_len = int(round(math.sqrt(width ** 2 + height ** 2)))
         rhos = np.linspace(-diag_len, diag_len, diag_len * 2)
@@ -322,9 +324,10 @@ class Filter:
         satisfying_lines = accumulator >= min_line_votes
         x, y = np.meshgrid(thetas, rhos)
         lines = np.dstack((x, y))[satisfying_lines]
-        if len(lines) ==0 :
-            print("max votes at lines accumulator: ",np.max(accumulator))
-            raise ValueError("No Lines found, try to decrease the min_line_votes_param")
+        if len(lines) == 0:
+            print("max votes at lines accumulator: ", np.max(accumulator))
+            raise ValueError(
+                "No Lines found, try to decrease the min_line_votes_param")
         for rho, theta in lines:
             a = np.cos(theta)
             b = np.sin(theta)
@@ -335,8 +338,76 @@ class Filter:
             x2 = int(x0 - 1000*(-b))
             y2 = int(y0 - 1000*(a))
             import cv2
-            lines_img = cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            lines_img = cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 4)
         return lines_img
+
+    @staticmethod
+    def hough_circles(img, pixel_step=1, minRadius=5, maxRadius=50, min_circle_votes=120, lowEdges_pixel_value=26):
+        height, width = img.shape[0], img.shape[1]
+        a = np.arange(0, width, 1)
+        b = np.arange(0, height, 1)
+        diagonal = int(round(math.sqrt(height ** 2 + width ** 2)/2))
+        print(diagonal)
+        r = np.arange(0, diagonal, pixel_step)
+        # Hough accumulator array
+        accumulator = np.zeros((len(a), len(b), len(r)), dtype=np.uint16)
+        # (row, col) indexes to edges
+        are_edges = img >= lowEdges_pixel_value
+        y_idxs, x_idxs = np.nonzero(are_edges)
+        print("edge pixels: ", len(y_idxs))
+        # Vote in the hough accumulator
+        for i in range(len(x_idxs)):
+            x = x_idxs[i]
+            y = y_idxs[i]
+            for xi in range(len(a)):
+                for yi in range(len(b)):
+                    radius = int(((x-xi)**2 + (y-yi)**2)**0.5)
+                    if minRadius <= radius <= maxRadius:
+                        # print(xi, yi, radius)
+                        try:
+                            accumulator[xi, yi, radius] += 1
+                        except:
+                            pass
+
+        # highly_voted_circles = np.sort(
+        #     accumulator, axis=None, kind="mergesort")[::-1][:1]
+        highly_voted_circles = np.max(
+            accumulator, axis=2)
+        highly_voted_circles = np.sort(
+            highly_voted_circles, axis=None, kind="mergesort")[::-1][:5]
+
+        # satisfying_lines =( accumulator >= min_circle_votes)
+        satisfying_lines = (accumulator >= highly_voted_circles[-1]) & (
+            accumulator <= highly_voted_circles[0])
+        # x, y, radius = np.meshgrid(a, b, r)
+        # circles = np.dstack((x, y, radius))[satisfying_lines]
+        circles = np.argwhere(satisfying_lines)
+        print("number of detected circels:  ", circles.shape)
+        try:
+            print(circles[0:3])
+        except:
+            pass
+        if len(circles) == 0:
+            print("max votes at circle accumulator: ", np.max(accumulator))
+            raise ValueError(
+                "No Lines found, try to decrease the min_circle_votes")
+        img = np.zeros_like(img)
+        for (x, y, r) in circles:
+            # draw the circle in the output image
+            import cv2
+            circles_binary = cv2.circle(img, (x, y), r, 255, 1)
+        return circles_binary
+
+    @staticmethod
+    def circles_superImpose(img, pixel_step=1, minRadius=5, maxRadius=50, canny_low=40, canny_high=150, edge_color="red") -> np.ndarray:
+        edges = Filter.canny(img, min_value=canny_low,
+                             max_value=canny_high)
+        lines_binary = Filter.hough_circles(
+            edges,  pixel_step=pixel_step, minRadius=minRadius, maxRadius=maxRadius)
+        super_imposed = Filter._superimpose(
+            img, lines_binary, color=edge_color)
+
+        return super_imposed
 
     @staticmethod
     def low_pass_frequency(img: np.ndarray, cut_off_x=40, cut_off_y=40) -> np.ndarray:
@@ -484,21 +555,15 @@ class Filter:
         np.ndarray
             [description]
         """
-
-        # highThreshold = np.max(img) * highThresholdRatio
-        # lowThreshold = highThreshold * lowThresholdRatio
-        highThreshold = min_edge_thresh
-        lowThreshold = max_edge_thresh
-
         M, N = img.shape[0], img.shape[1]
         res = np.zeros((M, N), dtype=np.int32)
 
         weak_pixel_val = np.int32(25)
         strong_pixel_val = np.int32(255)
 
-        strong_i, strong_j = np.where(img >= highThreshold)
+        strong_i, strong_j = np.where(img >= min_edge_thresh)
         weak_i, weak_j = np.where(
-            (img <= highThreshold) & (img >= lowThreshold))
+            (img <= min_edge_thresh) & (img >= max_edge_thresh))
 
         res[strong_i, strong_j] = strong_pixel_val
         res[weak_i, weak_j] = weak_pixel_val
@@ -779,33 +844,34 @@ class Kernel:
 
 if __name__ == '__main__':
 
-    img1 = mpimg.imread("flower_edges.jpg")
-    # print(img.ndim)
-    img = gray(img1)
-    print(img.shape)
-    # noisy = Noise.uniform(img, amount=0.2)
-    # noisy = Noise.gaussian(img,amount=0.1)
-    # noisy = Noise.salt_pepper(img,amount=0.2)
+    # img1 = mpimg.imread("circles.jpg")
+    # # print(img.ndim)
+    # img = gray(img1)
+    # print(img.shape)
+    # # noisy = Noise.uniform(img, amount=0.2)
+    # # noisy = Noise.gaussian(img,amount=0.1)
+    # # noisy = Noise.salt_pepper(img,amount=0.2)
     # filtered = Filter.canny_superImpose(img1,min_value=30,max_value=240,edge_color="blue")
-    filtered = Filter.lines_superImpose(img1, histress_low=50, histress_high=250, min_line_votes=20,edge_color="green")
-    # filteredCV += img
-    # filtered += Filter.sobel(noisy, direction="xy")
-    # filtered = Filter.high_pass_frequency(img, cut_off_x=35, cut_off_y=35)
-    # mask = filtered[:, :] > 150
-    # filtered = np.zeros((filtered.shape))
-    # filtered[mask] = 255
-    # Filter.gaussian(img)
-    # Kernel.sobel(kernel_size=5, direction='g', plot=True)
-    
-    f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
-    ax[0].imshow(img1, cmap="gray")
-    ax[0].set_title("Original Img")
-    ax[0].axis("off")
-    ax[1].set_title("Hough lines superimposed Image")
-    ax[1].imshow(filtered, cmap="gray")
-    plt.axis("off")
+    # # filtered = Filter.lines_superImpose(
+    # #     img1, histress_low=50, histress_high=250, min_line_votes=20, edge_color="green")
+    # # filteredCV += img
+    # # filtered += Filter.sobel(noisy, direction="xy")
+    # # filtered = Filter.high_pass_frequency(img, cut_off_x=35, cut_off_y=35)
+    # # mask = filtered[:, :] > 150
+    # # filtered = np.zeros((filtered.shape))
+    # # filtered[mask] = 255
+    # # Filter.gaussian(img)
+    # # Kernel.sobel(kernel_size=5, direction='g', plot=True)
 
-    plt.show()
+    # f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
+    # ax[0].imshow(img1, cmap="gray")
+    # ax[0].set_title("Original Img")
+    # ax[0].axis("off")
+    # ax[1].set_title("Hough lines superimposed Image")
+    # ax[1].imshow(filtered, cmap="gray")
+    # plt.axis("off")
+
+    # plt.show()
 
     # img1 = mpimg.imread("horizontal.jpg")
     # # print(img.ndim)
@@ -821,3 +887,22 @@ if __name__ == '__main__':
     # plt.axis("off")
 
     # plt.show()
+
+    img1 = mpimg.imread("manyCoins.jpg")
+
+    print(img1.ndim)
+    img = gray(img1)
+    print(img.shape)
+    canny = Filter.canny(img, min_value=35, max_value=155)
+    f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
+    circles = Filter.circles_superImpose(img1)
+    ax[0].imshow(img1, cmap="gray")
+    ax[0].set_title("Original Image")
+    ax[0].axis("off")
+    ax[1].set_title("Hough Circles Superimposed Image")
+    ax[1].imshow(circles, cmap="gray")
+    plt.axis("off")
+
+    plt.show()
+
+    # print(circles)
