@@ -70,7 +70,7 @@ def mean_shift(frame):
     feature_space = get_feature_space(frame)
 
     while len(feature_space) > 0:
-        print(len(feature_space))
+        # print(len(feature_space))
 
         if current_mean_random:
             current_mean = random.randint(0, len(feature_space) - 1)
@@ -148,7 +148,9 @@ def mean_shift(frame):
 
 
 def main():
-    frame = cv2.imread('cat.jpg')
+    frame = cv2.imread('./src/testImgs/gray3.jpg')
+
+    # print(frame)
 
     result_frame = mean_shift(frame)
 
