@@ -105,7 +105,7 @@ def segment_frame(frame, n_clusters):
 
 def main():
     frame = cv.imread('src/testImgs/gray3.jpg')
-    cluster_and_plot(frame, 5)
+    segment_frame(frame, 5)
 
 
 if __name__ == "__main__":
