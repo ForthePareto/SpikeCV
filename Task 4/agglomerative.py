@@ -76,10 +76,9 @@ class AgglomerativeClustering:
         center = self.centers[point_cluster_num]
         return center
 
+
 # you only nead to import this function
-
-
-def cluster_and_plot(frame, n_clusters):
+def segment_frame(frame, n_clusters):
     pixels = frame.reshape((-1, 3))
     agglo = AgglomerativeClustering(k=n_clusters, initial_k=25)
     agglo.fit(pixels)

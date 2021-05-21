@@ -52,6 +52,7 @@ def get_feature_space(frame):
     return feature_space
 
 
+# you only need to import this func
 def mean_shift(frame):
     row = frame.shape[0]
     col = frame.shape[1]
