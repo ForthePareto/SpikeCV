@@ -228,11 +228,10 @@ class Otsu:
     def _plot_image_historgram_pair(cls, img, result, histogram, n_bins, thresholds=[]):
         f, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
         ax[0].imshow(result, cmap="gray")
-        ax[1].set_title("historgram")
         ax[0].axis("off")
         ax[1].hist(img.ravel(), bins=range(1, n_bins),
                    color='#0504ab', alpha=0.55, rwidth=0.57)
-        ax[1].set_title("historgram")
+        ax[1].set_title("Histogram")
         if len(thresholds) > 0:
             ax[1].vlines(thresholds, 0, np.max(histogram),  color='r')
         plt.show()
