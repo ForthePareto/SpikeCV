@@ -253,21 +253,15 @@ class OptimalThresholding:
         initial_foreground_mean = np.mean(img) - initial_background_mean
 
         threshold = (initial_background_mean+initial_foreground_mean) / 2
-        while True:
+        previous_threshold = -1
+        while not (previous_threshold == threshold):
             previous_threshold = threshold
             background_pixels = img[img <= threshold]
             foreground_pixels = img[img > threshold]
-            try:
-                background_pixels_mean = np.mean(background_pixels)
-            except:
-                background_pixels_mean = 0
-            try:
-                foreground_pixels_mean = np.mean(foreground_pixels)
-            except:
-                foreground_pixels_mean = 0
+            background_pixels_mean = np.mean(background_pixels) if len(background_pixels)>0 else 0
+            foreground_pixels_mean = np.mean(foreground_pixels) if len(foreground_pixels)>0 else 0
             threshold = (background_pixels_mean + foreground_pixels_mean) / 2
-            if previous_threshold == threshold:
-                break
+            
         result = binarize(img,threshold)
         if plot:
             n_bins = int(np.max(img))
@@ -380,4 +374,4 @@ if __name__ == '__main__':
     # Thresholding.spectral(img, scope="global")
     optimalThresholder = OptimalThresholding(img)
     # optimalThresholder.global_thresholding(plot=True)
-    optimalThresholder.local_thresholding(block_length=77, plot=True)
+    optimalThresholder.local_thresholding(block_length=75, plot=True)
