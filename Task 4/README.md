@@ -11,3 +11,9 @@
 ![alt text](./UI/imgs/2_1.png "Global thresholding")
     * Local thresolding: 
 ![alt text](./UI/imgs/2_2.png  "Local thresolding")
+
+2. Optimal (iterative) thresholding (trimodal)
+    * Global thresholding: 
+![alt text](./UI/imgs/3_1.png "Global thresholding")
+    * Local thresolding: 
+![alt text](./UI/imgs/3_2.png  "Local thresolding")
