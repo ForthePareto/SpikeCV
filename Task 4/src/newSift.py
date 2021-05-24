@@ -217,8 +217,6 @@ def main():
         ax2.add_artist(con)
     plt.show()
 
-    img = cv.imread(filename)
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
 
 if __name__ == "__main__":
