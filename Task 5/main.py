@@ -20,7 +20,7 @@ from src.Noises import Noise
 from src.segmentation import Segmenation
 from src.thresholding import Thresholding
 from UI import GUI
-
+from src.recognizeFaces.FaceDetection import detect_faces
 
 class matplotWidget(QWidget):
     def __init__(self, parent=None):
