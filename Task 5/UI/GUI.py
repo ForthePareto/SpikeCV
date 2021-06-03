@@ -1355,7 +1355,7 @@ class Ui_MainWindow(object):
         self.threshTextEdit_2.setMaximumSize(QtCore.QSize(16777215, 31))
         self.threshTextEdit_2.setAutoFormatting(QtWidgets.QTextEdit.AutoNone)
         self.threshTextEdit_2.setReadOnly(False)
-        self.threshTextEdit_2.setMarkdown("")
+        # self.threshTextEdit_2.setMarkdown("")
         self.threshTextEdit_2.setOverwriteMode(True)
         self.threshTextEdit_2.setObjectName("threshTextEdit_2")
         self.verticalLayout_27.addWidget(self.threshTextEdit_2)

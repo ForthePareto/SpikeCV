@@ -518,9 +518,9 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         Apply face detection and display the result
         """
-        self.Imgs[20].imgByte = self.Imgs[19].imgByte
+        self.Imgs[20].imgByte = detect_faces(self.Imgs[19].imgByte)
 
-
+        
         self.Disp(self.Imgs[20].imgByte,self.Viewers[21])
 
     def matchFaces(self):
