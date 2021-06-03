@@ -69,14 +69,16 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.cornersInput, self.cornersOutput, self.siftInput,
             self.siftOutput, self.matchingA, self.matchingB,
             self.matchingImg, self.threshInput, self.threshOutput,
-            self.segInput, self.segOutput
+            self.segInput, self.segOutput, self.faceDetInput,
+            self.faceDetOutput, self.faceRecInput, self.faceRecOutput
         ]
 
         self.Loaders = [
             self.filterLoader, self.histLoader, self.hybridLoaderA,
             self.hybridLoaderB, self.houghLoader, self.cornersLoader,
             self.siftLoader, self.matchingLoaderA,
-            self.matchingLoaderB, self.threshLoader, self.segLoader
+            self.matchingLoaderB, self.threshLoader, self.segLoader,
+            self.faceDetLoader
         ]
 
         self.filterChecks = [
@@ -143,6 +145,12 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.Loaders[10].clicked.connect(lambda: self.getImage(17))
         self.segApply_btn.clicked.connect(lambda: self.segment())
 
+        self.Loaders[11].clicked.connect(lambda: self.getImage(19))
+        self.faceDetDetect_btn.clicked.connect(lambda: self.detFaces())
+
+        self.faceRecMatch_btn.clicked.connect(lambda: self.matchFaces())
+        
+
     def initChecks(self):
         pass
 
@@ -174,11 +182,20 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.segIn = IM("imgs\Waiting.png")
         self.segOut = IM("imgs\Waiting.png")
 
+        self.faceDetIn = IM("imgs\Waiting.png")
+        self.faceDetOut = IM("imgs\Waiting.png")
+
+        self.faceRecIn = IM("imgs\Waiting.png")
+        self.faceRecOut = IM("imgs\Waiting.png")
+
+        # from index 8 - 14 left blank until correctly implemented
         self.Imgs = [
             self.filterImg, self.filteredImg, self.histImg,
             self.hybridImgA, self.hybridImgB, self.hybridImgRes,
             self.houghIn, self.houghOut, 0, 0, 0, 0, 0, 0, 0,
-            self.threshIn, self.threshOut, self.segIn, self.segOut
+            self.threshIn, self.threshOut, self.segIn, self.segOut,
+            self.faceDetIn, self.faceDetOut, self.faceRecIn,
+            self.faceRecOut
         ]
 
     def disableViewerControls(self):
@@ -232,7 +249,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                     self.Disp(self.Imgs[i],self.Viewers[i])
                 else:
                     self.Disp(self.Imgs[i].imgByte,self.Viewers[i+1],self.ImgUp[i],i)
-                    
+
 
         """Display the image on the right image viewer
 
@@ -463,7 +480,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                 """Local thresh"""
                 blockSize = int(self.threshTextEdit.toPlainText())
                 self.Imgs[17].imgByte = Thresholding.bimodal(self.Imgs[16].imgByte,scope="local",block_length=blockSize)
-        
+
         elif(self.threshCombo.currentIndex() == 2):
             """Spectral Thresholding"""
             if (self.threshChecks[0].isChecked()):
@@ -496,6 +513,25 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.Imgs[18].imgByte = Segmenation.mean_shift(self.Imgs[17].imgByte)
 
         self.Disp(self.Imgs[18].imgByte,self.Viewers[19])
+
+    def detFaces(self):
+        """
+        Apply face detection and display the result
+        """
+        self.Imgs[20].imgByte = self.Imgs[19].imgByte
+
+
+        self.Disp(self.Imgs[20].imgByte,self.Viewers[21])
+
+    def matchFaces(self):
+        """
+        Apply face recognition and display the result
+        """
+        self.Imgs[22].imgByte = self.Imgs[21].imgByte
+
+
+        self.Disp(self.Imgs[22].imgByte,self.Viewers[23])
+
 
 
 def main():

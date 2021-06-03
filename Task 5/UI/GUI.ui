@@ -42,7 +42,7 @@
      <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>8</number>
+        <number>10</number>
        </property>
        <property name="tabBarAutoHide">
         <bool>false</bool>
@@ -3437,9 +3437,6 @@
                   <property name="readOnly">
                    <bool>false</bool>
                   </property>
-                  <property name="markdown">
-                   <string/>
-                  </property>
                   <property name="html">
                    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -3934,6 +3931,909 @@ p, li { white-space: pre-wrap; }
                 </item>
                </layout>
               </widget>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="faceDet_tab">
+        <attribute name="title">
+         <string>Face Detection</string>
+        </attribute>
+        <widget class="QWidget" name="gridLayoutWidget_12">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>897</width>
+           <height>570</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_29">
+          <item row="1" column="1">
+           <spacer name="horizontalSpacer_29">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Maximum</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>5</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="3">
+           <spacer name="horizontalSpacer_30">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Maximum</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>10</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="2">
+           <layout class="QGridLayout" name="gridLayout_30">
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_15">
+              <item>
+               <widget class="QGroupBox" name="groupBox_25">
+                <property name="minimumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift</family>
+                  <pointsize>21</pointsize>
+                 </font>
+                </property>
+                <property name="title">
+                 <string>Input Image</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="flat">
+                 <bool>false</bool>
+                </property>
+                <widget class="ImageView" name="faceDetInput" native="true">
+                 <property name="geometry">
+                  <rect>
+                   <x>30</x>
+                   <y>40</y>
+                   <width>301</width>
+                   <height>301</height>
+                  </rect>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_31">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>5</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="groupBox_26">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift</family>
+                  <pointsize>21</pointsize>
+                 </font>
+                </property>
+                <property name="title">
+                 <string>Output Image</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <widget class="ImageView" name="faceDetOutput" native="true">
+                 <property name="geometry">
+                  <rect>
+                   <x>30</x>
+                   <y>40</y>
+                   <width>301</width>
+                   <height>301</height>
+                  </rect>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <spacer name="verticalSpacer_33">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>201</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_16">
+              <item>
+               <widget class="QPushButton" name="faceDetDetect_btn">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>51</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>201</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift</family>
+                  <pointsize>17</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Detect</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QGridLayout" name="gridLayout_31">
+            <item row="7" column="0">
+             <widget class="QGroupBox" name="freqDomainGroup_5">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>151</width>
+                <height>121</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Presets</string>
+              </property>
+              <widget class="QWidget" name="verticalLayoutWidget_9">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>20</y>
+                 <width>131</width>
+                 <height>91</height>
+                </rect>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_27">
+                <item>
+                 <widget class="QRadioButton" name="threshGlobal_btn_2">
+                  <property name="text">
+                   <string>Global</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="threshLocal_btn_2">
+                  <property name="text">
+                   <string>Local</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTextEdit" name="threshTextEdit_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>31</height>
+                   </size>
+                  </property>
+                  <property name="autoFormatting">
+                   <set>QTextEdit::AutoNone</set>
+                  </property>
+                  <property name="readOnly">
+                   <bool>false</bool>
+                  </property>
+                  <property name="markdown">
+                   <string/>
+                  </property>
+                  <property name="html">
+                   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="overwriteMode">
+                   <bool>true</bool>
+                  </property>
+                  <property name="placeholderText">
+                   <string>Choose Block Size</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <spacer name="faceDetmenu_verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="0">
+             <spacer name="faceDetmenu_verticalSpacer_1">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="faceDetLoader">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>151</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Load Image</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0">
+             <spacer name="faceDetmenu_verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="3" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <widget class="QLabel" name="faceDetInputName">
+                <property name="text">
+                 <string>Name:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="faceDetInputSize">
+                <property name="text">
+                 <string>Size:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <spacer name="faceDetmenu_verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="faceRecog_tab">
+        <attribute name="title">
+         <string>Face Recognition</string>
+        </attribute>
+        <widget class="QWidget" name="gridLayoutWidget_13">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>897</width>
+           <height>570</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_32">
+          <item row="1" column="3">
+           <spacer name="horizontalSpacer_33">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Maximum</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>10</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="2">
+           <layout class="QGridLayout" name="gridLayout_33">
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_17">
+              <item>
+               <widget class="QGroupBox" name="groupBox_27">
+                <property name="minimumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift</family>
+                  <pointsize>21</pointsize>
+                 </font>
+                </property>
+                <property name="title">
+                 <string>Input Image</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="flat">
+                 <bool>false</bool>
+                </property>
+                <widget class="ImageView" name="faceRecInput" native="true">
+                 <property name="geometry">
+                  <rect>
+                   <x>30</x>
+                   <y>40</y>
+                   <width>301</width>
+                   <height>301</height>
+                  </rect>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_34">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>5</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="groupBox_28">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>350</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift</family>
+                  <pointsize>21</pointsize>
+                 </font>
+                </property>
+                <property name="title">
+                 <string>Output Image</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <widget class="ImageView" name="faceRecOutput" native="true">
+                 <property name="geometry">
+                  <rect>
+                   <x>30</x>
+                   <y>40</y>
+                   <width>301</width>
+                   <height>301</height>
+                  </rect>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>301</width>
+                   <height>301</height>
+                  </size>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <spacer name="verticalSpacer_46">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>201</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <item>
+               <widget class="QPushButton" name="faceRecMatch_btn">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>51</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>201</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift</family>
+                  <pointsize>17</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Match</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="1">
+           <spacer name="horizontalSpacer_32">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Maximum</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>5</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
+           <layout class="QGridLayout" name="gridLayout_34">
+            <item row="12" column="0">
+             <layout class="QVBoxLayout" name="faceRecmenu_verticalLayout_2">
+              <item>
+               <widget class="QLabel" name="selectedEigenfaces">
+                <property name="text">
+                 <string>Selected Eigenfaces:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="9" column="0">
+             <widget class="QPushButton" name="faceRec_makeEigen_btn">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>151</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Make Eignfaces</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0">
+             <spacer name="menu_verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="19" column="0">
+             <layout class="QVBoxLayout" name="faceRecmenu_verticalLayout_3">
+              <item>
+               <widget class="QLabel" name="faceRec_testDSInputName">
+                <property name="text">
+                 <string>DS Name</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="faceRec_testDImages">
+                <property name="text">
+                 <string>Images:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="24" column="0">
+             <spacer name="menu_verticalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="faceRec_trainDSLoader">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>151</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Load Training Dataset</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <spacer name="menu_verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="16" column="0">
+             <spacer name="menu_verticalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>17</width>
+                <height>17</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="7" column="0">
+             <spacer name="menu_verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="0">
+             <spacer name="menu_verticalSpacer_1">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>5</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="17" column="0">
+             <widget class="QPushButton" name="faceRec_testDSLoader">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>151</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Load Test Dataset</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <layout class="QVBoxLayout" name="faceRecmenu_verticalLayout_1">
+              <item>
+               <widget class="QLabel" name="faceRec_trainDSInputName">
+                <property name="text">
+                 <string>DS Name:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="faceRec_trainDSImages">
+                <property name="text">
+                 <string>Images:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="13" column="0">
+             <spacer name="menu_verticalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="18" column="0">
+             <spacer name="menu_verticalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>1</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="15" column="0">
+             <widget class="Line" name="line">
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <property name="lineWidth">
+               <number>1</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
              </widget>
             </item>
            </layout>
