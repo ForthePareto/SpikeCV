@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
-from Filters import gray
+from src.Filters import gray
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -19,6 +19,7 @@ class Thresholding:
         optimalThresholder = OptimalThresholding(img)
         
         if scope == "global":
+            print("optimal done")
             return optimalThresholder.global_thresholding()
         elif scope == "local":
             return optimalThresholder.local_thresholding(block_length=block_length)
@@ -76,7 +77,7 @@ class Otsu:
         self.thresholds = []
         self.thresholds.append(threshold)
         # binarize(black & white) the image based on the calculated threshold
-        bimodal_segmented_image = Otsu._binarize(img, threshold)
+        bimodal_segmented_image = binarize(img, threshold)
         if plot:
             Otsu._plot_image_historgram_pair(
                 img, bimodal_segmented_image, histogram1, n_bins, self.thresholds)

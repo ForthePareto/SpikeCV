@@ -1,5 +1,6 @@
 import numpy as np
-import matplotlib.image as mpimg       
+import matplotlib.image as mpimg
+import cv2   
 
 
 def rgba2rgb(rgba):
@@ -27,7 +28,9 @@ class ImageModel():
         ###
         # ALL the following properties should be assigned correctly after reading imgPath 
         ###
-        self.imgByte = mpimg.imread(self.imgPath)
+        #self.imgByte = mpimg.imread(self.imgPath)
+        self.imgByte = cv2.imread(self.imgPath)
+        self.imgByte = cv2.cvtColor(self.imgByte, cv2.COLOR_BGR2RGB)
         self.imgHeight = self.imgByte.shape[0]
         self.imgWidth = self.imgByte.shape[1]
     

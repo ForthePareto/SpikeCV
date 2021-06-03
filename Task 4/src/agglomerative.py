@@ -104,8 +104,11 @@ def segment_frame(frame, n_clusters):
 
 
 def main():
-    frame = cv.imread('src/testImgs/gray3.jpg')
-    segment_frame(frame, 5)
+    frame = cv.imread("src/testImgs/lenna.jpg")
+    img = segment_frame(frame, 5)
+    plt.imshow(img)
+    plt.show()
+
 
 
 if __name__ == "__main__":

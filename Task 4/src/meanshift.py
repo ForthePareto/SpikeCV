@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import random
+import sys
 import matplotlib.pyplot as plt
 
 
@@ -71,7 +72,7 @@ def mean_shift(frame):
     feature_space = get_feature_space(frame)
 
     while len(feature_space) > 0:
-        print(len(feature_space))
+        # print(len(feature_space))
 
         if current_mean_random:
             current_mean = random.randint(0, len(feature_space) - 1)
@@ -149,20 +150,15 @@ def mean_shift(frame):
 
 
 def main():
-    frame = cv2.imread('./src/testImgs/Lenna.jpg')
+    frame = cv2.imread("src/testImgs/lenna.jpg")
 
     # print(frame)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    fig = plt.figure(figsize=(10, 5))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
 
     result_frame = mean_shift(frame)
-
-    ax1.imshow(frame)
-    ax2.imshow(result_frame)
-
+    plt.imshow(result_frame)
     plt.show()
+    # cv2.imshow('final', result_frame)
+    # cv2.waitKey(0)
 
 
 if __name__ == '__main__':

@@ -3,19 +3,23 @@ import sys
 import cv2
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+import pyqtgraph as pg
 import numpy as np
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from src import segmentation
 
-from UI import GUI
 # from src import ActiveContour, Filters, imageModel, ImgUtils, Noises
 from src.ActiveContour import greedySnake as snake
 from src.Filters import Filter, gray
 from src.imageModel import ImageModel as IM
 from src.ImgUtils import ImgUtils as IU
 from src.Noises import Noise
+from src.segmentation import Segmenation
+from src.thresholding import Thresholding
+from UI import GUI
 
 
 class matplotWidget(QWidget):
@@ -60,40 +64,43 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         self.Viewers = [
             self.filterInput, self.filterOutput, self.histInput,
-            self.histOutput, self.hybridA, self.hybridB, self.hybridImg,
-            self.houghInput, self.houghOutput, self.cornersInput, self.cornersOutput
+            self.histOutput, self.hybridA, self.hybridB,
+            self.hybridImg, self.houghInput, self.houghOutput,
+            self.cornersInput, self.cornersOutput, self.siftInput,
+            self.siftOutput, self.matchingA, self.matchingB,
+            self.matchingImg, self.threshInput, self.threshOutput,
+            self.segInput, self.segOutput
         ]
 
         self.Loaders = [
-            self.filterLoader,
-            self.histLoader,
-            self.hybridLoaderA,
-            self.hybridLoaderB,
-            self.houghLoader,
-            self.cornersLoader
+            self.filterLoader, self.histLoader, self.hybridLoaderA,
+            self.hybridLoaderB, self.houghLoader, self.cornersLoader,
+            self.siftLoader, self.matchingLoaderA,
+            self.matchingLoaderB, self.threshLoader, self.segLoader
         ]
 
         self.filterChecks = [
-            self.noiseUniform_check,
-            self.noiseGaussian_check,
-            self.noiseSAP_check,
-            self.filtersAverage_check,
-            self.filtersGaussian_check,
-            self.filtersMedian_check,
-            self.edgeSobel_check,
-            self.edgeRoberts_check,
-            self.edgePrewitt_check,
-            self.filterLowPass_btn,
+            self.noiseUniform_check, self.noiseGaussian_check,
+            self.noiseSAP_check, self.filtersAverage_check,
+            self.filtersGaussian_check, self.filtersMedian_check,
+            self.edgeSobel_check, self.edgeRoberts_check,
+            self.edgePrewitt_check, self.filterLowPass_btn,
             self.filterhighPass_btn
         ]
+
         self.histogramChecks = [
-            self.histEqualCheck,
-            self.histNormCheck,
-            self.histGTCheck
+            self.histEqualCheck, self.histNormCheck, self.histGTCheck
         ]
-        self.houghChecks = [
-            self.houghLines_btn,
-            self.houghCircles_btn
+
+        self.houghChecks = [self.houghLines_btn, self.houghCircles_btn]
+
+        self.threshChecks = [
+            self.threshGlobal_btn, self.threshLocal_btn
+        ]
+
+        self.segChecks = [
+            self.segKMeans_btn, self.segRegionGrowing_btn,
+            self.segAgglomerative_btn, self.segMeanShift_btn
         ]
 
     def loadImage(self):
@@ -114,20 +121,27 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         self.cornersLoader.clicked.connect(lambda: self.loadImage)
 
-        self.filterLoader.clicked.connect(lambda: self.Disp(0))
+        self.filterLoader.clicked.connect(lambda: self.getImage(0))
         self.filterApply_btn.clicked.connect(lambda: self.filter())
 
-        self.Loaders[1].clicked.connect(lambda: self.Disp(2))
+        self.Loaders[1].clicked.connect(lambda: self.getImage(2))
         self.histApply_btn.clicked.connect(lambda: self.histFunctions())
 
-        self.Loaders[2].clicked.connect(lambda: self.Disp(4))
-        self.Loaders[3].clicked.connect(lambda: self.Disp(5))
+        self.Loaders[2].clicked.connect(lambda: self.getImage(3))
+        self.Loaders[3].clicked.connect(lambda: self.getImage(4))
         self.mergeBtn.clicked.connect(lambda: self.makeHybrid())
 
-        self.Loaders[4].clicked.connect(lambda: self.Disp(7))
+        self.Loaders[4].clicked.connect(lambda: self.getImage(6))
         self.houghApply_btn.clicked.connect(lambda: self.applyHough())
 
         self.contourApply_btn.clicked.connect(lambda: self.plot())
+
+        self.Loaders[9].clicked.connect(lambda: self.getImage(15))
+        self.threshApply_btn.clicked.connect(lambda: self.threshold())
+        self.threshLocal_btn.toggled.connect(lambda: self.switchThreshTextEdit())
+
+        self.Loaders[10].clicked.connect(lambda: self.getImage(17))
+        self.segApply_btn.clicked.connect(lambda: self.segment())
 
     def initChecks(self):
         pass
@@ -136,18 +150,36 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         Initiates needed Img containers
         """
-        self.ImgUp = [False, False, False, False, False, False, False]
+        self.ImgUp = [
+            False, False, False, False, False, False, False, False,
+            False, False, False, False, False, False, False, False,
+            False, False, False, False, False
+        ]
+
         self.filterImg = IM("imgs\Waiting.png")
         self.filteredImg = IM("imgs\Waiting.png")
+
         self.histImg = IM("imgs\Waiting.png")
+
         self.hybridImgA = IM("imgs\Waiting.png")
         self.hybridImgB = IM("imgs\Waiting.png")
         self.hybridImgRes = IM("imgs\Waiting.png")
+
         self.houghIn = IM("imgs\Waiting.png")
         self.houghOut = IM("imgs\Waiting.png")
-        self.Imgs = [self.filterImg, self.filteredImg, self.histImg,
-                     self.hybridImgA, self.hybridImgB, self.hybridImgRes,
-                     self.houghIn, self.houghOut]
+
+        self.threshIn = IM("imgs\Waiting.png")
+        self.threshOut = IM("imgs\Waiting.png")
+
+        self.segIn = IM("imgs\Waiting.png")
+        self.segOut = IM("imgs\Waiting.png")
+
+        self.Imgs = [
+            self.filterImg, self.filteredImg, self.histImg,
+            self.hybridImgA, self.hybridImgB, self.hybridImgRes,
+            self.houghIn, self.houghOut, 0, 0, 0, 0, 0, 0, 0,
+            self.threshIn, self.threshOut, self.segIn, self.segOut
+        ]
 
     def disableViewerControls(self):
         """
@@ -158,8 +190,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         while (i < len(self.Viewers)):
             self.Viewers[i].ui.histogram.hide()
             self.Viewers[i].ui.roiBtn.hide()
-            self.Viewers[i].ui.roiPlot.hide()
             self.Viewers[i].ui.menuBtn.hide()
+            self.Viewers[i].ui.roiPlot.hide()
             self.Viewers[i].getView().setAspectLocked(False)
             self.Viewers[i].view.setAspectLocked(False)
             i += 1
@@ -196,33 +228,39 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                 self.ImgUp[i] = False
             else:
                 self.ImgUp[i] = True
+                if i < 3:
+                    self.Disp(self.Imgs[i],self.Viewers[i])
+                else:
+                    self.Disp(self.Imgs[i].imgByte,self.Viewers[i+1],self.ImgUp[i],i)
+                    
 
-    def Disp(self, i: int):
         """Display the image on the right image viewer
 
         Args:
             i (int): index of the image viewer to display image on (specifically on the Viewers[] container)
         """
-        if i > 3:
-            self.getImage(i - 1)
+    def Disp(self, img: np.ndarray, viewer: pg.ImageView, uploaded: bool = True, i:int = 3):
+        """Display the image on the right image viewer
 
-            if self.ImgUp[i-1]:
-                print(self.Imgs[i-1].imgByte.shape)
-                self.Viewers[i].setImage(self.Imgs[i-1].imgByte.T)
-                self.Viewers[i].ui.roiPlot.hide()
+        Args:
+            img (np.ndarray): An image to display.
+            viewer (pg.ImageView): The image viewer to display the image.
+            uploaded (bool): Image status.
+            i (int, optional): Index of the image viewer to display image on (specifically on the Viewers[] container).
+        """
+        if uploaded:
+            # Copy the original source because cv2 updates the passed parameter
+            src = np.copy(img)
+
+            # Rotate the image 90 degree because ImageView is rotated
+            src = cv2.transpose(src)
+
+            viewer.setImage(src)
+            viewer.ui.roiPlot.hide()
+            if i == 0:
                 self.switchControls(False)
-
-        else:
-            self.getImage(i)
-
-            if self.ImgUp[i]:
-                print(self.Imgs[i].imgByte.shape[1])
-                self.Viewers[i].setImage(self.Imgs[i].imgByte.T)
-                self.Viewers[i].ui.roiPlot.hide()
-                if i == 0:
-                    self.switchControls(False)
-                elif i == 2:
-                    self.histogram()
+            elif i == 2:
+                self.histogram()
 
     def filter(self):
         """
@@ -255,8 +293,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.Imgs[1].imgByte = Filter.high_pass_frequency(
                 self.Imgs[1].imgByte)
 
-        self.Viewers[1].setImage(self.Imgs[1].imgByte.T)
-        self.Viewers[1].ui.roiPlot.hide()
+        self.Disp(self.Imgs[1].imgByte,self.Viewers[1])
 
     def histogram(self):
         """
@@ -281,8 +318,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         elif (self.histogramChecks[2].isChecked()):
             res = IU.globalThresholding(self.Imgs[2].imgByte, 150)
 
-        self.Viewers[3].setImage(res.T)
-        self.Viewers[3].ui.roiPlot.hide()
+        self.Disp(res,self.Viewers[3])
         histogram, bin_edges = np.histogram(res,
                                             bins=res.shape[1],
                                             range=(res.min(),
@@ -302,23 +338,22 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """Make hybrid image and display it on the right image viewer"""
         self.Imgs[5].imgByte = IU.hybrid(
             self.Imgs[3].imgByte, self.Imgs[4].imgByte)
-        self.Viewers[6].setImage(self.Imgs[5].imgByte.T)
-        self.Viewers[6].ui.roiPlot.hide()
+
+        self.Disp(self.Imgs[5].imgByte,self.Viewers[6])
 
     def applyHough(self):
         """Check which hough algorithm the user chose and apply it, then display the output on the right image viewer"""
         if(self.ImgUp[6] == True):
             res = self.Imgs[6].imgByte
-            self.Viewers[8].setImage(Filter.canny_superImpose(res).T)
-            self.Viewers[8].ui.roiPlot.hide()
+
+            self.Disp(Filter.canny_superImpose(res),self.Viewers[8])
 
             if (self.houghChecks[0].isChecked()):
                 res = Filter.lines_superImpose(res)
             elif (self.houghChecks[1].isChecked()):
                 res = Filter.circles_superImpose(res)
 
-            self.Viewers[8].setImage(res.T)
-            self.Viewers[8].ui.roiPlot.hide()
+            self.Disp(res,self.Viewers[8])
 
     def plot(self):
         """
@@ -388,12 +423,79 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             QtWidgets.QApplication.processEvents()
 
     def corners(self, image):
-        from Corners import findCorners
+        from src.Corners import findCorners
         outputCornersImage, cornerList = findCorners(image)
 
         self.cornersInput.setImage(ouputCornersImage.T)
 
         pass
+
+    def switchThreshTextEdit(self):
+        print(self.threshTextEdit.toPlainText())
+        if(self.threshLocal_btn.isChecked()):
+            self.threshTextEdit.setEnabled(True)
+        else:
+            self.threshTextEdit.setDisabled(True)
+
+    def threshold(self):
+        """
+        Apply Tresholding, we first check which option from the combobox,
+        then we chech which radio button is pressed and apply suitable thresholding
+        """
+        self.Imgs[16].imgByte = self.Imgs[15].imgByte
+        if(self.threshCombo.currentIndex() == 0):
+            """Optimal Thresholding"""
+            if (self.threshChecks[0].isChecked()):
+                """Global thresh"""
+                self.Imgs[17].imgByte = Thresholding.optimal(self.Imgs[16].imgByte)
+
+            elif (self.threshChecks[1].isChecked()):
+                """Local thresh"""
+                blockSize = int(self.threshTextEdit.toPlainText())
+                self.Imgs[17].imgByte = Thresholding.optimal(self.Imgs[16].imgByte,scope="local",block_length=blockSize)
+
+        elif(self.threshCombo.currentIndex() == 1):
+            """Otsu Thresholding"""
+            if (self.threshChecks[0].isChecked()):
+                """Global thresh"""
+                self.Imgs[17].imgByte = Thresholding.bimodal(self.Imgs[16].imgByte)
+            elif (self.threshChecks[1].isChecked()):
+                """Local thresh"""
+                blockSize = int(self.threshTextEdit.toPlainText())
+                self.Imgs[17].imgByte = Thresholding.bimodal(self.Imgs[16].imgByte,scope="local",block_length=blockSize)
+        
+        elif(self.threshCombo.currentIndex() == 2):
+            """Spectral Thresholding"""
+            if (self.threshChecks[0].isChecked()):
+                """Global thresh"""
+                self.Imgs[17].imgByte = Thresholding.spectral(self.Imgs[16].imgByte)
+            elif (self.threshChecks[1].isChecked()):
+                """Local thresh"""
+                blockSize = int(self.threshTextEdit.toPlainText())
+                self.Imgs[17].imgByte = Thresholding.spectral(self.Imgs[16].imgByte,scope="local",block_length=blockSize)
+
+        self.Disp(self.Imgs[17].imgByte,self.Viewers[17])
+
+    def segment(self):
+        """
+        Apply segmentation method, check which radio button is pressed,
+        then apply right segmentaion method and display output
+        """
+        self.Imgs[18].imgByte = self.Imgs[17].imgByte
+        if (self.segChecks[0].isChecked()):
+            """K-Means"""
+            self.Imgs[18].imgByte = Segmenation.kmeans(self.Imgs[17].imgByte,3)
+        elif (self.segChecks[1].isChecked()):
+            """Region Growing"""
+            self.Imgs[18].imgByte = Segmenation.region_growing(self.Imgs[17].imgByte,threshold=15)
+        elif (self.segChecks[2].isChecked()):
+            """Agglo"""
+            self.Imgs[18].imgByte = Segmenation.agglomerative(self.Imgs[17].imgByte, n_clusters=5)
+        elif (self.segChecks[3].isChecked()):
+            """Mean Shift"""
+            self.Imgs[18].imgByte = Segmenation.mean_shift(self.Imgs[17].imgByte)
+
+        self.Disp(self.Imgs[18].imgByte,self.Viewers[19])
 
 
 def main():
