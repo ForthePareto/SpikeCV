@@ -158,7 +158,7 @@ class FaceRecognition():
 def img_grid(images):
     first_image = images[0]
     contact_sheet = PIL.Image.new(
-        first_image.mode, (first_image.width*3, first_image.height*3))
+        first_image.mode, (first_image.width*2, first_image.height*2))
     x = 0
     y = 0
 
