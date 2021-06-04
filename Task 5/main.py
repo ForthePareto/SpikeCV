@@ -129,7 +129,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.filterApply_btn.clicked.connect(lambda: self.filter())
 
         self.Loaders[1].clicked.connect(lambda: self.getImage(2))
-        self.histApply_btn.clicked.connect(lambda: self.histFunctions())
+        self.histApply_btn.clicked.connect(
+            lambda: self.histFunctions())
 
         self.Loaders[2].clicked.connect(lambda: self.getImage(3))
         self.Loaders[3].clicked.connect(lambda: self.getImage(4))
@@ -144,7 +145,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
 
         self.Loaders[9].clicked.connect(lambda: self.getImage(15))
         self.threshApply_btn.clicked.connect(lambda: self.threshold())
-        self.threshLocal_btn.toggled.connect(lambda: self.switchThreshTextEdit())
+        self.threshLocal_btn.toggled.connect(
+            lambda: self.switchThreshTextEdit())
 
         self.Loaders[10].clicked.connect(lambda: self.getImage(17))
         self.segApply_btn.clicked.connect(lambda: self.segment())
@@ -152,11 +154,11 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.Loaders[11].clicked.connect(lambda: self.getImage(19))
         self.faceDetDetect_btn.clicked.connect(lambda: self.detFaces())
 
-        self.faceRec_trainDSLoader.clicked.connect(lambda: self.loadDataset())
+        self.faceRec_trainDSLoader.clicked.connect(
+            lambda: self.loadDataset())
         self.Loaders[12].clicked.connect(lambda: self.getImage(21))
-        self.faceRecMatch_btn.clicked.connect(lambda: self.matchFaces())
-
-        
+        self.faceRecMatch_btn.clicked.connect(
+            lambda: self.matchFaces())
 
     def initChecks(self):
         pass
@@ -241,7 +243,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             "Images (*.png *.xpm *.jpg);;",
             options=QtWidgets.QFileDialog.DontUseNativeDialog,
         )
-        print("filepath is >>>>>", self.filePath)
+        print("filepath is ", self.filePath)
         if self.filePath == "":
             pass
         else:
@@ -251,17 +253,22 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             else:
                 self.ImgUp[i] = True
                 if i < 3:
-                    self.Disp(self.Imgs[i].imgByte,self.Viewers[i],self.ImgUp[i],i)
+                    self.Disp(self.Imgs[i].imgByte, self.Viewers[i],
+                              self.ImgUp[i], i)
                 else:
-                    self.Disp(self.Imgs[i].imgByte,self.Viewers[i+1],self.ImgUp[i],i)
-
-
+                    self.Disp(self.Imgs[i].imgByte,
+                              self.Viewers[i + 1], self.ImgUp[i], i)
         """Display the image on the right image viewer
 
         Args:
             i (int): index of the image viewer to display image on (specifically on the Viewers[] container)
         """
-    def Disp(self, img: np.ndarray, viewer: pg.ImageView, uploaded: bool = True, i:int = 3):
+
+    def Disp(self,
+             img: np.ndarray,
+             viewer: pg.ImageView,
+             uploaded: bool = True,
+             i: int = 3):
         """Display the image on the right image viewer
 
         Args:
@@ -295,11 +302,13 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         if (self.filterChecks[1].isChecked()):
             self.Imgs[1].imgByte = Noise.gaussian(self.Imgs[1].imgByte)
         if (self.filterChecks[2].isChecked()):
-            self.Imgs[1].imgByte = Noise.salt_pepper(self.Imgs[1].imgByte)
+            self.Imgs[1].imgByte = Noise.salt_pepper(
+                self.Imgs[1].imgByte)
         if (self.filterChecks[3].isChecked()):
             self.Imgs[1].imgByte = Filter.average(self.Imgs[1].imgByte)
         if (self.filterChecks[4].isChecked()):
-            self.Imgs[1].imgByte = Filter.gaussian(self.Imgs[1].imgByte)
+            self.Imgs[1].imgByte = Filter.gaussian(
+                self.Imgs[1].imgByte)
         if (self.filterChecks[5].isChecked()):
             self.Imgs[1].imgByte = Filter.median(self.Imgs[1].imgByte)
         if (self.filterChecks[6].isChecked()):
@@ -315,17 +324,18 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.Imgs[1].imgByte = Filter.high_pass_frequency(
                 self.Imgs[1].imgByte)
 
-        self.Disp(self.Imgs[1].imgByte,self.Viewers[1])
+        self.Disp(self.Imgs[1].imgByte, self.Viewers[1])
 
     def histogram(self):
         """
         Apply histogram and plot output
         """
         if self.ImgUp[2]:
-            histogram, bin_edges = np.histogram(self.Imgs[2].imgByte,
-                                                bins=self.Imgs[2].imgWidth,
-                                                range=(self.Imgs[2].imgByte.min(),
-                                                       self.Imgs[2].imgByte.max()))
+            histogram, bin_edges = np.histogram(
+                self.Imgs[2].imgByte,
+                bins=self.Imgs[2].imgWidth,
+                range=(self.Imgs[2].imgByte.min(),
+                       self.Imgs[2].imgByte.max()))
             self.histInputGraph.plot(bin_edges[:-1], histogram)
 
     def histFunctions(self):
@@ -341,14 +351,15 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         elif (self.histogramChecks[2].isChecked()):
             res = IU.globalThresholding(self.Imgs[2].imgByte, 150)
 
-        self.Disp(res,self.Viewers[3])
+        self.Disp(res, self.Viewers[3])
         histogram, bin_edges = np.histogram(res,
                                             bins=res.shape[1],
                                             range=(res.min(),
                                                    res.max()))
         self.histOutputGraph.plot(bin_edges[:-1], histogram)
 
-    def normalize(self, frame: np.ndarray, newMin: float, newMax: float):
+    def normalize(self, frame: np.ndarray, newMin: float,
+                  newMax: float):
         newFrame = np.copy(frame)
         mini = frame.min()
         maxi = frame.max()
@@ -359,24 +370,24 @@ class ApplicationWindow(GUI.Ui_MainWindow):
 
     def makeHybrid(self):
         """Make hybrid image and display it on the right image viewer"""
-        self.Imgs[5].imgByte = IU.hybrid(
-            self.Imgs[3].imgByte, self.Imgs[4].imgByte)
+        self.Imgs[5].imgByte = IU.hybrid(self.Imgs[3].imgByte,
+                                         self.Imgs[4].imgByte)
 
-        self.Disp(self.Imgs[5].imgByte,self.Viewers[6])
+        self.Disp(self.Imgs[5].imgByte, self.Viewers[6])
 
     def applyHough(self):
         """Check which hough algorithm the user chose and apply it, then display the output on the right image viewer"""
-        if(self.ImgUp[6] == True):
+        if (self.ImgUp[6] == True):
             res = self.Imgs[6].imgByte
 
-            self.Disp(Filter.canny_superImpose(res),self.Viewers[8])
+            self.Disp(Filter.canny_superImpose(res), self.Viewers[8])
 
             if (self.houghChecks[0].isChecked()):
                 res = Filter.lines_superImpose(res)
             elif (self.houghChecks[1].isChecked()):
                 res = Filter.circles_superImpose(res)
 
-            self.Disp(res,self.Viewers[8])
+            self.Disp(res, self.Viewers[8])
 
     def plot(self):
         """
@@ -388,7 +399,6 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         points = snake._pointsOnCircle((290, 440), 125, 30)
 
         self.activeContour(im, points)
-
         """ self.matplot.axis.clear()
         self.matplot.axis.imshow(im, cmap=cm.Greys_r)
         #self.matplot.canvas.pause(0.01)
@@ -408,7 +418,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         Iterate the contour until the energy reaches an equilibrium
         """
         energy_matrix = np.zeros((10000 - 1, 9, 9), dtype=np.float32)
-        position_matrix = np.zeros((10000 - 1, 9, 9, 2), dtype=np.int32)
+        position_matrix = np.zeros((10000 - 1, 9, 9, 2),
+                                   dtype=np.int32)
         neighbors = np.array([[i, j] for i in range(-1, 2)
                               for j in range(-1, 2)])
         min_final_energy_prev = float("inf")
@@ -417,8 +428,9 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         smooth_factor = 15
         iterations = 30
         gradient_image = snake._gradientImage(image)
-        smooth_image = cv2.GaussianBlur(
-            gradient_image, (smooth_factor, smooth_factor), 0)
+        smooth_image = cv2.GaussianBlur(gradient_image,
+                                        (smooth_factor, smooth_factor),
+                                        0)
         self.dispPlot(image, points)
 
         while True:
@@ -429,13 +441,16 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                     smooth_factor -= 4
                 smooth_image = cv2.GaussianBlur(
                     gradient_image, (smooth_factor, smooth_factor), 0)
-                print("Deblur step, smooth factor now: ", smooth_factor)
+                print("Deblur step, smooth factor now: ",
+                      smooth_factor)
 
             self.dispPlot(smooth_image, points)
             min_final_energy = snake._iterateContour(
-                image, smooth_image, points, energy_matrix, position_matrix, neighbors)
+                image, smooth_image, points, energy_matrix,
+                position_matrix, neighbors)
 
-            if (min_final_energy == min_final_energy_prev) or smooth_factor < 4:
+            if (min_final_energy
+                    == min_final_energy_prev) or smooth_factor < 4:
                 print("Min energy reached at ", min_final_energy)
                 print("Final smooth factor ", smooth_factor)
                 self.dispPlot(image, points)
@@ -455,7 +470,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
 
     def switchThreshTextEdit(self):
         print(self.threshTextEdit.toPlainText())
-        if(self.threshLocal_btn.isChecked()):
+        if (self.threshLocal_btn.isChecked()):
             self.threshTextEdit.setEnabled(True)
         else:
             self.threshTextEdit.setDisabled(True)
@@ -466,38 +481,50 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         then we chech which radio button is pressed and apply suitable thresholding
         """
         self.Imgs[16].imgByte = self.Imgs[15].imgByte
-        if(self.threshCombo.currentIndex() == 0):
+        if (self.threshCombo.currentIndex() == 0):
             """Optimal Thresholding"""
             if (self.threshChecks[0].isChecked()):
                 """Global thresh"""
-                self.Imgs[17].imgByte = Thresholding.optimal(self.Imgs[16].imgByte)
+                self.Imgs[17].imgByte = Thresholding.optimal(
+                    self.Imgs[16].imgByte)
 
             elif (self.threshChecks[1].isChecked()):
                 """Local thresh"""
                 blockSize = int(self.threshTextEdit.toPlainText())
-                self.Imgs[17].imgByte = Thresholding.optimal(self.Imgs[16].imgByte,scope="local",block_length=blockSize)
+                self.Imgs[17].imgByte = Thresholding.optimal(
+                    self.Imgs[16].imgByte,
+                    scope="local",
+                    block_length=blockSize)
 
-        elif(self.threshCombo.currentIndex() == 1):
+        elif (self.threshCombo.currentIndex() == 1):
             """Otsu Thresholding"""
             if (self.threshChecks[0].isChecked()):
                 """Global thresh"""
-                self.Imgs[17].imgByte = Thresholding.bimodal(self.Imgs[16].imgByte)
+                self.Imgs[17].imgByte = Thresholding.bimodal(
+                    self.Imgs[16].imgByte)
             elif (self.threshChecks[1].isChecked()):
                 """Local thresh"""
                 blockSize = int(self.threshTextEdit.toPlainText())
-                self.Imgs[17].imgByte = Thresholding.bimodal(self.Imgs[16].imgByte,scope="local",block_length=blockSize)
+                self.Imgs[17].imgByte = Thresholding.bimodal(
+                    self.Imgs[16].imgByte,
+                    scope="local",
+                    block_length=blockSize)
 
-        elif(self.threshCombo.currentIndex() == 2):
+        elif (self.threshCombo.currentIndex() == 2):
             """Spectral Thresholding"""
             if (self.threshChecks[0].isChecked()):
                 """Global thresh"""
-                self.Imgs[17].imgByte = Thresholding.spectral(self.Imgs[16].imgByte)
+                self.Imgs[17].imgByte = Thresholding.spectral(
+                    self.Imgs[16].imgByte)
             elif (self.threshChecks[1].isChecked()):
                 """Local thresh"""
                 blockSize = int(self.threshTextEdit.toPlainText())
-                self.Imgs[17].imgByte = Thresholding.spectral(self.Imgs[16].imgByte,scope="local",block_length=blockSize)
+                self.Imgs[17].imgByte = Thresholding.spectral(
+                    self.Imgs[16].imgByte,
+                    scope="local",
+                    block_length=blockSize)
 
-        self.Disp(self.Imgs[17].imgByte,self.Viewers[17])
+        self.Disp(self.Imgs[17].imgByte, self.Viewers[17])
 
     def segment(self):
         """
@@ -507,18 +534,22 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.Imgs[18].imgByte = self.Imgs[17].imgByte
         if (self.segChecks[0].isChecked()):
             """K-Means"""
-            self.Imgs[18].imgByte = Segmenation.kmeans(self.Imgs[17].imgByte,3)
+            self.Imgs[18].imgByte = Segmenation.kmeans(
+                self.Imgs[17].imgByte, 3)
         elif (self.segChecks[1].isChecked()):
             """Region Growing"""
-            self.Imgs[18].imgByte = Segmenation.region_growing(self.Imgs[17].imgByte,threshold=15)
+            self.Imgs[18].imgByte = Segmenation.region_growing(
+                self.Imgs[17].imgByte, threshold=15)
         elif (self.segChecks[2].isChecked()):
             """Agglo"""
-            self.Imgs[18].imgByte = Segmenation.agglomerative(self.Imgs[17].imgByte, n_clusters=5)
+            self.Imgs[18].imgByte = Segmenation.agglomerative(
+                self.Imgs[17].imgByte, n_clusters=5)
         elif (self.segChecks[3].isChecked()):
             """Mean Shift"""
-            self.Imgs[18].imgByte = Segmenation.mean_shift(self.Imgs[17].imgByte)
+            self.Imgs[18].imgByte = Segmenation.mean_shift(
+                self.Imgs[17].imgByte)
 
-        self.Disp(self.Imgs[18].imgByte,self.Viewers[19])
+        self.Disp(self.Imgs[18].imgByte, self.Viewers[19])
 
     def detFaces(self):
         """
@@ -526,10 +557,10 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         self.Imgs[20].imgByte = self.Imgs[19].imgByte
 
-        if(self.ImgUp[19] == True):
+        if (self.ImgUp[19] == True):
             self.Imgs[20].imgByte = detect_faces(self.Imgs[20].imgByte)
-        
-        self.Disp(self.Imgs[20].imgByte,self.Viewers[21])
+
+        self.Disp(self.Imgs[20].imgByte, self.Viewers[21])
 
     def loadDataset(self):
         self.datasetUp = False
@@ -539,25 +570,26 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             "",
             options=QtWidgets.QFileDialog.DontUseNativeDialog,
         )
-        print("filepath is >>>>>", self.datasetPath)
+        print("filepath is ", self.datasetPath)
         if self.datasetPath == "":
             self.datasetUp = False
         else:
             self.datasetUp = True
-            self.faceRec_trainDSInputName.setText("DS Name: " + self.datasetPath.split( '/' )[-1])
+            self.faceRec_trainDSInputName.setText(
+                "DS Name: " + self.datasetPath.split('/')[-1])
 
     def matchFaces(self):
         """
         Apply face recognition and display the result
         """
         self.Imgs[22].imgByte = self.Imgs[21].imgByte
-        
-        
-        if(self.ImgUp[21] == True & self.datasetUp == True):
-            self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[22].imgByte, self.datasetPath)
-        
-        self.Disp(self.Imgs[22].imgByte,self.Viewers[23])
 
+        if (self.ImgUp[21] == True & self.datasetUp == True):
+            self.Imgs[
+                22].imgByte, detected_class_name = FaceRecognitionWrapper(
+                    self.Imgs[22].imgByte, self.datasetPath)
+
+        self.Disp(self.Imgs[22].imgByte, self.Viewers[23])
 
 
 def main():
