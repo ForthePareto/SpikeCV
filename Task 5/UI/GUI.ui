@@ -42,7 +42,7 @@
      <item row="0" column="0">
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>11</number>
+        <number>10</number>
        </property>
        <property name="tabBarAutoHide">
         <bool>false</bool>
@@ -4176,12 +4176,12 @@ p, li { white-space: pre-wrap; }
             <item row="7" column="0">
              <widget class="QGroupBox" name="freqDomainGroup_5">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
                 <width>151</width>
-                <height>121</height>
+                <height>141</height>
                </size>
               </property>
               <property name="title">
@@ -4190,61 +4190,102 @@ p, li { white-space: pre-wrap; }
               <widget class="QWidget" name="verticalLayoutWidget_9">
                <property name="geometry">
                 <rect>
-                 <x>10</x>
+                 <x>3</x>
                  <y>20</y>
-                 <width>131</width>
-                 <height>91</height>
+                 <width>151</width>
+                 <height>113</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_27">
                 <item>
-                 <widget class="QRadioButton" name="threshGlobal_btn_2">
-                  <property name="text">
-                   <string>Global</string>
-                  </property>
-                 </widget>
+                 <layout class="QHBoxLayout" name="horizontalLayout_19">
+                  <item>
+                   <widget class="QLabel" name="label">
+                    <property name="maximumSize">
+                     <size>
+                      <width>71</width>
+                      <height>31</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Scale Factor:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QTextEdit" name="faceDetmenuScaleFactor_textEdit">
+                    <property name="maximumSize">
+                     <size>
+                      <width>61</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="placeholderText">
+                     <string>1.1</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                 <item>
-                 <widget class="QRadioButton" name="threshLocal_btn_2">
-                  <property name="text">
-                   <string>Local</string>
-                  </property>
-                 </widget>
+                 <layout class="QHBoxLayout" name="horizontalLayout_20">
+                  <item>
+                   <widget class="QLabel" name="label_2">
+                    <property name="maximumSize">
+                     <size>
+                      <width>71</width>
+                      <height>31</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Min Neighbors:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QTextEdit" name="faceDetmenuMinNei_textEdit">
+                    <property name="maximumSize">
+                     <size>
+                      <width>61</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="placeholderText">
+                     <string>5</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                 <item>
-                 <widget class="QTextEdit" name="threshTextEdit_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>31</height>
-                   </size>
-                  </property>
-                  <property name="autoFormatting">
-                   <set>QTextEdit::AutoNone</set>
-                  </property>
-                  <property name="readOnly">
-                   <bool>false</bool>
-                  </property>
-                  <property name="markdown">
-                   <string/>
-                  </property>
-                  <property name="html">
-                   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="overwriteMode">
-                   <bool>true</bool>
-                  </property>
-                  <property name="placeholderText">
-                   <string>Choose Block Size</string>
-                  </property>
-                 </widget>
+                 <layout class="QHBoxLayout" name="horizontalLayout_21">
+                  <item>
+                   <widget class="QLabel" name="label_3">
+                    <property name="maximumSize">
+                     <size>
+                      <width>71</width>
+                      <height>31</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Min Size:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QTextEdit" name="faceDetmenuminSize_textEdit">
+                    <property name="maximumSize">
+                     <size>
+                      <width>61</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="placeholderText">
+                     <string>(25, 25)</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </widget>
