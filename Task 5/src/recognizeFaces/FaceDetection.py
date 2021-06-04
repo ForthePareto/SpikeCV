@@ -8,6 +8,7 @@ import cv2
 import sys
 
 
+
 def detect_faces(img, cascPath="haarcascade_frontalface_default.xml"):
     gray_img = gray(img).astype(np.uint8)
     output = np.copy(img).astype(np.uint8)

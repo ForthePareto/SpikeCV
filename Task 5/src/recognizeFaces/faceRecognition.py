@@ -1,3 +1,4 @@
+import numpy
 import os
 import glob
 from sklearn import preprocessing
@@ -6,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from ..Filters import gray
+import PIL
+from PIL import Image
 
 
 def plot_image(images, titles, h, w, n_row, n_col):
@@ -139,7 +142,7 @@ class FaceRecognition():
                 smallest_value = epsilon_z
                 index = z
         if smallest_value < thres_2:
-            self.class_name =  self.names[index]
+            self.class_name = self.names[index]
             print("input image belongs to class: ", self.names[index])
             # display the first-img in the matching database-dir
             # plt.imshow(self.all_img[index],cmap='gray')
@@ -152,21 +155,46 @@ class FaceRecognition():
             return(test_img)
 
 
+def img_grid(images):
+    first_image = images[0]
+    contact_sheet = PIL.Image.new(
+        first_image.mode, (first_image.width*3, first_image.height*3))
+    x = 0
+    y = 0
+
+    for img in images:
+        # Lets paste the current image into the contact sheet
+        contact_sheet.paste(img, (x, y))
+        # Now we update our X position. If it is going to be the width of the image, then we set it to 0
+        # and update Y as well to point to the next "line" of the contact sheet.
+        if x+first_image.width == contact_sheet.width:
+            x = 0
+            y = y+first_image.height
+        else:
+            x = x+first_image.width
+    # resize and display the contact sheet
+    contact_sheet = contact_sheet.resize(
+        (int(contact_sheet.width/2), int(contact_sheet.height/2)))
+    return np.asarray(contact_sheet)
+
+
 def FaceRecognitionWrapper(input: np.ndarray, dataSetPath="src/recognizeFaces/archive/"):
     FaceRecognizer = FaceRecognition(dataSetPath)
     gray_img = gray(input)
     print(input.shape)
-    class_name = FaceRecognizer.class_name
+
     try:
         result = FaceRecognizer.classifyImg(gray_img)
+        class_name = FaceRecognizer.class_name
     except:
         print("not found")
+        class_name = "None"
         result = cv2.imread('../testImgs/404.png', cv2.IMREAD_GRAYSCALE)
 
-    plt.imshow(result, cmap='gray')
-    plt.title('Busted')
-    plt.show()
-    return result,class_name
+    # plt.imshow(result, cmap='gray')
+    # plt.title('Busted')
+    # plt.show()
+    return result, class_name
 
 
 if __name__ == '__main__':
