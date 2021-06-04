@@ -21,6 +21,7 @@ from src.segmentation import Segmenation
 from src.thresholding import Thresholding
 from UI import GUI
 from src.recognizeFaces.FaceDetection import detect_faces
+from src.recognizeFaces.faceRecognition import FaceRecognitionWrapper
 
 class matplotWidget(QWidget):
     def __init__(self, parent=None):
@@ -527,9 +528,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         Apply face recognition and display the result
         """
-        self.Imgs[22].imgByte = self.Imgs[21].imgByte
-
-
+        self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[21].imgByte, dataSetPath="src/recognizeFaces/archive/")  #TODO dataSetPath should be given from gui
+        # TODO: detected_class_name should be printed in the GUI 
         self.Disp(self.Imgs[22].imgByte,self.Viewers[23])
 
 
