@@ -285,6 +285,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             src = cv2.transpose(src)
 
             viewer.setImage(src)
+            viewer.setRange(xRange=[0, src.shape[0]], yRange=[0, src.shape[1]],
+                             padding=0)
             viewer.ui.roiPlot.hide()
             if i == 0:
                 self.switchControls(False)
@@ -558,6 +560,9 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.Imgs[20].imgByte = self.Imgs[19].imgByte
 
         if (self.ImgUp[19] == True):
+            self.faceDetmenuScaleFactor_textEdit
+            self.faceDetmenuMinNei_textEdit
+            self.faceDetmenuminSize_textEdit
             self.Imgs[20].imgByte = detect_faces(self.Imgs[20].imgByte)
 
         self.Disp(self.Imgs[20].imgByte, self.Viewers[21])
