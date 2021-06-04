@@ -1,14 +1,13 @@
-import numpy
-import os
 import glob
 from sklearn import preprocessing
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from ..Filters import gray
+# from ..Filters import gray
+from FiltersCopy import gray
 import PIL
-from PIL import Image
+# from PIL import Image
 
 
 def plot_image(images, titles, h, w, n_row, n_col):
@@ -178,7 +177,7 @@ def img_grid(images):
     return np.asarray(contact_sheet)
 
 
-def FaceRecognitionWrapper(input: np.ndarray, dataSetPath="src/recognizeFaces/archive/"):
+def FaceRecognitionWrapper(input: np.ndarray, dataSetPath="./archive/"):
     FaceRecognizer = FaceRecognition(dataSetPath)
     gray_img = gray(input)
     print(input.shape)
@@ -197,7 +196,28 @@ def FaceRecognitionWrapper(input: np.ndarray, dataSetPath="src/recognizeFaces/ar
     return result, class_name
 
 
+def getFirstFour(className:str,dataSetPath="./archive/"):
+    if(dataSetPath[-1] != '/'):
+        dataSetPath += '/'
+    imgsLst = []    
+    shape = (112, 92)
+    imgPath = dataSetPath + className + '/'
+    for i in range(4):
+        getImg = str(i+1) + ".pgm"
+        print(imgPath + getImg)
+        read_image = cv2.imread(imgPath + getImg, cv2.IMREAD_GRAYSCALE)
+        resized_image = cv2.resize(read_image, (shape[1], shape[0]))
+        imgsLst.append(np.array(read_image,dtype='float64'))
+                    
+    return imgsLst
+
 if __name__ == '__main__':
 
-    test = cv2.imread('src/testImgs/export1.png', cv2.IMREAD_GRAYSCALE)
-    FaceRecognitionWrapper(test)
+    test = cv2.imread('../testImgs/export1.png', cv2.IMREAD_GRAYSCALE)
+    _,class_name = FaceRecognitionWrapper(test)
+    lst = getFirstFour(class_name)
+
+    for i in range(len(lst)):
+        plt.imshow(lst[i], cmap='gray')
+        plt.title(i)
+        plt.show()
