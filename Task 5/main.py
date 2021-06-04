@@ -285,7 +285,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             src = cv2.transpose(src)
 
             viewer.setImage(src)
-            viewer.setRange(xRange=[0, src.shape[0]], yRange=[0, src.shape[1]],
+            viewer.view.setRange(xRange=[0, src.shape[0]], yRange=[0, src.shape[1]],
                              padding=0)
             viewer.ui.roiPlot.hide()
             if i == 0:
