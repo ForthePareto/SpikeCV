@@ -106,6 +106,26 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.segAgglomerative_btn, self.segMeanShift_btn
         ]
 
+        self.inputNames = [
+            self.filterInputName, 0, self.histInputName,
+            self.hybridInputAName, self.hybridInputBName, 0,
+            self.houghInputName, 0, 0, 0, 0, self.contourInputName,
+            self.cornersInputName, self.siftInputName,
+            self.matchingInputAName, self.matchingInputBName,
+            self.threshInputName, self.segInputName, 0,
+            self.faceDetInputName, 0, self.faceRecInputName
+        ]
+
+        self.inputSizes = [
+            self.filterInputSize, 0, self.histInputSize,
+            self.hybridInputASize, self.hybridInputBSize, 0,
+            self.houghInputSize,  0, 0, 0, 0, self.contourInputSize,
+            self.cornersInputSize, self.siftInputSize,
+            self.matchingInputASize, self.matchingInputBSize,
+            self.threshInputSize, self.segInputSize, 0,
+            self.faceDetInputSize, 0, self.faceRecInputSize
+        ]
+
     def loadImage(self):
         """
         Made by mahmoud but he probably quit halfway
@@ -252,17 +272,15 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                 self.ImgUp[i] = False
             else:
                 self.ImgUp[i] = True
+                self.inputNames[i].setText("Name: " + self.Imgs[i].imgPath.split('/')[-1])
+                self.inputSizes[i].setText("Size: " + str(self.Imgs[i].imgHeight) + " x " + str(self.Imgs[i].imgWidth))
+
                 if i < 3:
                     self.Disp(self.Imgs[i].imgByte, self.Viewers[i],
                               self.ImgUp[i], i)
                 else:
                     self.Disp(self.Imgs[i].imgByte,
                               self.Viewers[i + 1], self.ImgUp[i], i)
-        """Display the image on the right image viewer
-
-        Args:
-            i (int): index of the image viewer to display image on (specifically on the Viewers[] container)
-        """
 
     def Disp(self,
              img: np.ndarray,

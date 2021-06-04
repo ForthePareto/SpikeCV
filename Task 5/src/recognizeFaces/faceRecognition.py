@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from ..Filters import gray
-# from FiltersCopy import gray
+# from ..Filters import gray
+from src.Filters import gray
 import PIL
 # from PIL import Image
 
