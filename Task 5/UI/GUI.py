@@ -1692,7 +1692,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Min Neighbors:"))
         self.faceDetmenuMinNei_textEdit.setPlaceholderText(_translate("MainWindow", "5"))
         self.label_3.setText(_translate("MainWindow", "Min Size:"))
-        self.faceDetmenuminSize_textEdit.setPlaceholderText(_translate("MainWindow", "(25, 25)"))
+        self.faceDetmenuminSize_textEdit.setPlaceholderText(_translate("MainWindow", "25"))
         self.faceDetLoader.setText(_translate("MainWindow", "Load Image"))
         self.faceDetInputName.setText(_translate("MainWindow", "Name:"))
         self.faceDetInputSize.setText(_translate("MainWindow", "Size:"))

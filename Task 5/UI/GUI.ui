@@ -4281,7 +4281,7 @@ p, li { white-space: pre-wrap; }
                      </size>
                     </property>
                     <property name="placeholderText">
-                     <string>(25, 25)</string>
+                     <string>25</string>
                     </property>
                    </widget>
                   </item>
