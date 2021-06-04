@@ -3,13 +3,12 @@ import sys
 import cv2
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import pyqtgraph as pg
 import numpy as np
+import pyqtgraph as pg
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QVBoxLayout, QWidget
-from src import segmentation
 
 # from src import ActiveContour, Filters, imageModel, ImgUtils, Noises
 from src.ActiveContour import greedySnake as snake
@@ -17,11 +16,12 @@ from src.Filters import Filter, gray
 from src.imageModel import ImageModel as IM
 from src.ImgUtils import ImgUtils as IU
 from src.Noises import Noise
-from src.segmentation import Segmenation
-from src.thresholding import Thresholding
-from UI import GUI
 from src.recognizeFaces.FaceDetection import detect_faces
 from src.recognizeFaces.faceRecognition import FaceRecognitionWrapper
+from src.Segmentation.segmentation import Segmenation
+from src.thresholding import Thresholding
+from UI import GUI
+
 
 class matplotWidget(QWidget):
     def __init__(self, parent=None):
@@ -122,8 +122,6 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         Initiates button signals
         """
-        self.cornersLoader.clicked.connect(lambda: self.loadImage)
-
         self.filterLoader.clicked.connect(lambda: self.getImage(0))
         self.filterApply_btn.clicked.connect(lambda: self.filter())
 
@@ -138,6 +136,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.houghApply_btn.clicked.connect(lambda: self.applyHough())
 
         self.contourApply_btn.clicked.connect(lambda: self.plot())
+
+        self.cornersLoader.clicked.connect(lambda: self.loadImage)
 
         self.Loaders[9].clicked.connect(lambda: self.getImage(15))
         self.threshApply_btn.clicked.connect(lambda: self.threshold())
@@ -247,7 +247,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             else:
                 self.ImgUp[i] = True
                 if i < 3:
-                    self.Disp(self.Imgs[i],self.Viewers[i])
+                    self.Disp(self.Imgs[i].imgByte,self.Viewers[i],self.ImgUp[i],i)
                 else:
                     self.Disp(self.Imgs[i].imgByte,self.Viewers[i+1],self.ImgUp[i],i)
 
@@ -330,6 +330,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         res = self.Imgs[2].imgByte
         if (self.histogramChecks[0].isChecked()):
+            # todo: fix broken functionality (out of index error with lena.jpg)
             res = IU.histogramEqualization(self.Imgs[2].imgByte)
         elif (self.histogramChecks[1].isChecked()):
             res = self.normalize(self.Imgs[2].imgByte, 0, 255)

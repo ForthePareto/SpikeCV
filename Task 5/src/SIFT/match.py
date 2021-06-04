@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pickle
 from os.path import isfile
 
-from sift import SIFT
+from src.SIFT.sift import SIFT
 
 def compute_homography(pts1, pts2):
 	pts1 = np.concatenate((pts1, np.ones((len(pts1), 1))), axis=1)

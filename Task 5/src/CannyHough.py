@@ -2,7 +2,7 @@ import numpy as np
 import math
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
-from Filters import Filter, rgba2rgb,gray
+from src.Filters import Filter, rgba2rgb,gray
 
 
 class BoundaryDetector:

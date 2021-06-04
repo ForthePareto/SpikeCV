@@ -1,10 +1,10 @@
 import numpy as np
 import cv2 as cv
 
-from src.kmeans import KMeans
-from src.agglomerative import segment_frame
-from src.meanshift import mean_shift
-from src.rGrowing import RGWrapper
+from src.Segmentation.kmeans import KMeans
+from src.Segmentation.agglomerative import segment_frame
+from src.Segmentation.meanshift import mean_shift
+from src.Segmentation.rGrowing import RGWrapper
 
 class Segmenation:
     """
