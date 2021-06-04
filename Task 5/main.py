@@ -79,7 +79,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.hybridLoaderB, self.houghLoader, self.cornersLoader,
             self.siftLoader, self.matchingLoaderA,
             self.matchingLoaderB, self.threshLoader, self.segLoader,
-            self.faceDetLoader
+            self.faceDetLoader, self.faceRecLoader
         ]
 
         self.filterChecks = [
@@ -107,6 +107,9 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         ]
 
     def loadImage(self):
+        """
+        Made by mahmoud but he probably quit halfway
+        """
         print("here")
         self.filePath, self.format = QtWidgets.QFileDialog.getOpenFileName(
             None,
@@ -149,7 +152,10 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.Loaders[11].clicked.connect(lambda: self.getImage(19))
         self.faceDetDetect_btn.clicked.connect(lambda: self.detFaces())
 
+        self.faceRec_trainDSLoader.clicked.connect(lambda: self.loadDataset())
+        self.Loaders[12].clicked.connect(lambda: self.getImage(21))
         self.faceRecMatch_btn.clicked.connect(lambda: self.matchFaces())
+
         
 
     def initChecks(self):
@@ -162,7 +168,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.ImgUp = [
             False, False, False, False, False, False, False, False,
             False, False, False, False, False, False, False, False,
-            False, False, False, False, False
+            False, False, False, False, False, False, False
         ]
 
         self.filterImg = IM("imgs\Waiting.png")
@@ -228,8 +234,6 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         Args:
             i (int): The index of the image that the user needs loaded (specifically in the Imgs[] container)
         """
-        options = QtWidgets.QFileDialog.Options()
-        options |= QtWidgets.QFileDialog.DontUseNativeDialog
         self.filePath, self.format = QtWidgets.QFileDialog.getOpenFileName(
             None,
             "Load Image",
@@ -527,6 +531,21 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         
         self.Disp(self.Imgs[20].imgByte,self.Viewers[21])
 
+    def loadDataset(self):
+        self.datasetUp = False
+        self.datasetPath = QtWidgets.QFileDialog.getExistingDirectory(
+            None,
+            "Load Image",
+            "",
+            options=QtWidgets.QFileDialog.DontUseNativeDialog,
+        )
+        print("filepath is >>>>>", self.datasetPath)
+        if self.datasetPath == "":
+            self.datasetUp = False
+        else:
+            self.datasetUp = True
+            # self.datasetPath += "/"
+
     def matchFaces(self):
         """
         Apply face recognition and display the result
@@ -534,8 +553,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         self.Imgs[22].imgByte = self.Imgs[21].imgByte
         
         
-        if(self.ImgUp[21] == True):
-            self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[22].imgByte, dataSetPath="src/recognizeFaces/archive/")  #TODO dataSetPath should be given from gui
+        if(self.ImgUp[21] == True & self.datasetUp == True):
+            self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[22].imgByte, self.datasetPath)  #TODO dataSetPath should be given from gui
         
         # TODO: detected_class_name should be printed in the GUI 
         self.Disp(self.Imgs[22].imgByte,self.Viewers[23])
