@@ -122,7 +122,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         Initiates button signals
         """
-        self.filterLoader.clicked.connect(lambda: self.getImage(0))
+        self.Loaders[0].clicked.connect(lambda: self.getImage(0))
         self.filterApply_btn.clicked.connect(lambda: self.filter())
 
         self.Loaders[1].clicked.connect(lambda: self.getImage(2))
@@ -520,8 +520,10 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         Apply face detection and display the result
         """
-        self.Imgs[20].imgByte = detect_faces(self.Imgs[19].imgByte)
+        self.Imgs[20].imgByte = self.Imgs[19].imgByte
 
+        if(self.ImgUp[19] == True):
+            self.Imgs[20].imgByte = detect_faces(self.Imgs[20].imgByte)
         
         self.Disp(self.Imgs[20].imgByte,self.Viewers[21])
 
@@ -529,7 +531,12 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         """
         Apply face recognition and display the result
         """
-        self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[21].imgByte, dataSetPath="src/recognizeFaces/archive/")  #TODO dataSetPath should be given from gui
+        self.Imgs[22].imgByte = self.Imgs[21].imgByte
+        
+        
+        if(self.ImgUp[21] == True):
+            self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[22].imgByte, dataSetPath="src/recognizeFaces/archive/")  #TODO dataSetPath should be given from gui
+        
         # TODO: detected_class_name should be printed in the GUI 
         self.Disp(self.Imgs[22].imgByte,self.Viewers[23])
 
