@@ -8,16 +8,15 @@ import cv2
 import sys
 
 
-
-def detect_faces(img, cascPath="haarcascade_frontalface_default.xml"):
+def detect_faces(img, scaleFactor=1.1, minNeighbors=5, minSize=(25, 25), cascPath="haarcascade_frontalface_default.xml"):
     gray_img = gray(img).astype(np.uint8)
     output = np.copy(img).astype(np.uint8)
     faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + cascPath)
     faces = faceCascade.detectMultiScale(
         gray_img,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(25, 25),
+        scaleFactor=scaleFactor,
+        minNeighbors=minNeighbors,
+        minSize=minSize,
         flags=cv2.CASCADE_SCALE_IMAGE
     )
 

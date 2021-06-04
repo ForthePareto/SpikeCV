@@ -1681,33 +1681,64 @@ class Ui_MainWindow(object):
         self.gridLayout_31.setObjectName(u"gridLayout_31")
         self.freqDomainGroup_5 = QGroupBox(self.gridLayoutWidget_12)
         self.freqDomainGroup_5.setObjectName(u"freqDomainGroup_5")
-        self.freqDomainGroup_5.setEnabled(False)
-        self.freqDomainGroup_5.setMinimumSize(QSize(151, 121))
+        self.freqDomainGroup_5.setEnabled(True)
+        self.freqDomainGroup_5.setMinimumSize(QSize(151, 141))
         self.verticalLayoutWidget_9 = QWidget(self.freqDomainGroup_5)
         self.verticalLayoutWidget_9.setObjectName(u"verticalLayoutWidget_9")
-        self.verticalLayoutWidget_9.setGeometry(QRect(10, 20, 131, 91))
+        self.verticalLayoutWidget_9.setGeometry(QRect(3, 20, 151, 113))
         self.verticalLayout_27 = QVBoxLayout(self.verticalLayoutWidget_9)
         self.verticalLayout_27.setObjectName(u"verticalLayout_27")
         self.verticalLayout_27.setContentsMargins(0, 0, 0, 0)
-        self.threshGlobal_btn_2 = QRadioButton(self.verticalLayoutWidget_9)
-        self.threshGlobal_btn_2.setObjectName(u"threshGlobal_btn_2")
+        self.horizontalLayout_19 = QHBoxLayout()
+        self.horizontalLayout_19.setObjectName(u"horizontalLayout_19")
+        self.label = QLabel(self.verticalLayoutWidget_9)
+        self.label.setObjectName(u"label")
+        self.label.setMaximumSize(QSize(71, 31))
 
-        self.verticalLayout_27.addWidget(self.threshGlobal_btn_2)
+        self.horizontalLayout_19.addWidget(self.label)
 
-        self.threshLocal_btn_2 = QRadioButton(self.verticalLayoutWidget_9)
-        self.threshLocal_btn_2.setObjectName(u"threshLocal_btn_2")
+        self.faceDetmenuScaleFactor_textEdit = QTextEdit(self.verticalLayoutWidget_9)
+        self.faceDetmenuScaleFactor_textEdit.setObjectName(u"faceDetmenuScaleFactor_textEdit")
+        self.faceDetmenuScaleFactor_textEdit.setMaximumSize(QSize(61, 23))
 
-        self.verticalLayout_27.addWidget(self.threshLocal_btn_2)
+        self.horizontalLayout_19.addWidget(self.faceDetmenuScaleFactor_textEdit)
 
-        self.threshTextEdit_2 = QTextEdit(self.verticalLayoutWidget_9)
-        self.threshTextEdit_2.setObjectName(u"threshTextEdit_2")
-        self.threshTextEdit_2.setEnabled(False)
-        self.threshTextEdit_2.setMaximumSize(QSize(16777215, 31))
-        self.threshTextEdit_2.setAutoFormatting(QTextEdit.AutoNone)
-        self.threshTextEdit_2.setReadOnly(False)
-        self.threshTextEdit_2.setOverwriteMode(True)
 
-        self.verticalLayout_27.addWidget(self.threshTextEdit_2)
+        self.verticalLayout_27.addLayout(self.horizontalLayout_19)
+
+        self.horizontalLayout_20 = QHBoxLayout()
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.label_2 = QLabel(self.verticalLayoutWidget_9)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setMaximumSize(QSize(71, 31))
+
+        self.horizontalLayout_20.addWidget(self.label_2)
+
+        self.faceDetmenuMinNei_textEdit = QTextEdit(self.verticalLayoutWidget_9)
+        self.faceDetmenuMinNei_textEdit.setObjectName(u"faceDetmenuMinNei_textEdit")
+        self.faceDetmenuMinNei_textEdit.setMaximumSize(QSize(61, 23))
+
+        self.horizontalLayout_20.addWidget(self.faceDetmenuMinNei_textEdit)
+
+
+        self.verticalLayout_27.addLayout(self.horizontalLayout_20)
+
+        self.horizontalLayout_21 = QHBoxLayout()
+        self.horizontalLayout_21.setObjectName(u"horizontalLayout_21")
+        self.label_3 = QLabel(self.verticalLayoutWidget_9)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setMaximumSize(QSize(71, 31))
+
+        self.horizontalLayout_21.addWidget(self.label_3)
+
+        self.faceDetmenuminSize_textEdit = QTextEdit(self.verticalLayoutWidget_9)
+        self.faceDetmenuminSize_textEdit.setObjectName(u"faceDetmenuminSize_textEdit")
+        self.faceDetmenuminSize_textEdit.setMaximumSize(QSize(61, 23))
+
+        self.horizontalLayout_21.addWidget(self.faceDetmenuminSize_textEdit)
+
+
+        self.verticalLayout_27.addLayout(self.horizontalLayout_21)
 
 
         self.gridLayout_31.addWidget(self.freqDomainGroup_5, 7, 0, 1, 1)
@@ -1940,7 +1971,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(11)
+        self.tabWidget.setCurrentIndex(10)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -2072,15 +2103,12 @@ class Ui_MainWindow(object):
         self.groupBox_26.setTitle(QCoreApplication.translate("MainWindow", u"Output Image", None))
         self.faceDetDetect_btn.setText(QCoreApplication.translate("MainWindow", u"Detect", None))
         self.freqDomainGroup_5.setTitle(QCoreApplication.translate("MainWindow", u"Presets", None))
-        self.threshGlobal_btn_2.setText(QCoreApplication.translate("MainWindow", u"Global", None))
-        self.threshLocal_btn_2.setText(QCoreApplication.translate("MainWindow", u"Local", None))
-        self.threshTextEdit_2.setMarkdown("")
-        self.threshTextEdit_2.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
-        self.threshTextEdit_2.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Choose Block Size", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Scale Factor:", None))
+        self.faceDetmenuScaleFactor_textEdit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"1.1", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Min Neighbors:", None))
+        self.faceDetmenuMinNei_textEdit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"5", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Min Size:", None))
+        self.faceDetmenuminSize_textEdit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"25", None))
         self.faceDetLoader.setText(QCoreApplication.translate("MainWindow", u"Load Image", None))
         self.faceDetInputName.setText(QCoreApplication.translate("MainWindow", u"Name:", None))
         self.faceDetInputSize.setText(QCoreApplication.translate("MainWindow", u"Size:", None))

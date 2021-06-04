@@ -564,13 +564,13 @@ class ApplicationWindow(GUI.Ui_MainWindow):
                 scaleFactor = float(self.faceDetmenuScaleFactor_textEdit.toPlainText())
             else: scaleFactor = 1.1 # default
             if(self.faceDetmenuMinNei_textEdit.toPlainText() != ""):
-                minNeighbors = float(self.faceDetmenuMinNei_textEdit.toPlainText())
+                minNeighbors = int(self.faceDetmenuMinNei_textEdit.toPlainText())
             else: minNeighbors = 5 # default
             if(self.faceDetmenuminSize_textEdit.toPlainText() != ""):
-                minSize = (float(self.faceDetmenuminSize_textEdit.toPlainText()),float(self.faceDetmenuminSize_textEdit.toPlainText()))
+                minSize = (int(self.faceDetmenuminSize_textEdit.toPlainText()),int(self.faceDetmenuminSize_textEdit.toPlainText()))
             else: minSize = (25, 25) # default
             
-            self.Imgs[20].imgByte = detect_faces(self.Imgs[20].imgByte)
+            self.Imgs[20].imgByte = detect_faces(self.Imgs[20].imgByte,scaleFactor=scaleFactor,minNeighbors=minNeighbors,minSize=minSize)
 
         self.Disp(self.Imgs[20].imgByte, self.Viewers[21])
 

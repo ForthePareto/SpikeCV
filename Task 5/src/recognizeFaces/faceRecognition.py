@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-# from ..Filters import gray
-from FiltersCopy import gray
+from ..Filters import gray
+# from FiltersCopy import gray
 import PIL
 # from PIL import Image
 
@@ -155,14 +155,15 @@ class FaceRecognition():
 
 
 def img_grid(images):
-    first_image = images[0]
+    first_image = PIL.Image.fromarray(images[0])
     contact_sheet = PIL.Image.new(
         first_image.mode, (first_image.width*2, first_image.height*2))
     x = 0
     y = 0
 
     for img in images:
-        # Lets paste the current image into the contact sheet
+        # paste the current image into the contact sheet
+        img = PIL.Image.fromarray(img)
         contact_sheet.paste(img, (x, y))
         # Now we update our X position. If it is going to be the width of the image, then we set it to 0
         # and update Y as well to point to the next "line" of the contact sheet.
@@ -177,47 +178,47 @@ def img_grid(images):
     return np.asarray(contact_sheet)
 
 
-def FaceRecognitionWrapper(input: np.ndarray, dataSetPath="./archive/"):
+def FaceRecognitionWrapper(input: np.ndarray, dataSetPath="src/recognizeFaces/archive/"):
     FaceRecognizer = FaceRecognition(dataSetPath)
     gray_img = gray(input)
-    print(input.shape)
 
     try:
         result = FaceRecognizer.classifyImg(gray_img)
         class_name = FaceRecognizer.class_name
+        result = img_grid(getFirstFour(class_name))
+
     except:
         print("not found")
         class_name = "None"
-        result = cv2.imread('../testImgs/404.png', cv2.IMREAD_GRAYSCALE)
+        result = cv2.imread('src/testImgs/404.png', cv2.IMREAD_GRAYSCALE)
 
-    # plt.imshow(result, cmap='gray')
-    # plt.title('Busted')
-    # plt.show()
     return result, class_name
 
 
-def getFirstFour(className:str,dataSetPath="./archive/"):
+def getFirstFour(className: str, dataSetPath="src/recognizeFaces/archive/"):
     if(dataSetPath[-1] != '/'):
         dataSetPath += '/'
-    imgsLst = []    
-    shape = (112, 92)
+    imgsLst = []
     imgPath = dataSetPath + className + '/'
     for i in range(4):
         getImg = str(i+1) + ".pgm"
         print(imgPath + getImg)
         read_image = cv2.imread(imgPath + getImg, cv2.IMREAD_GRAYSCALE)
-        resized_image = cv2.resize(read_image, (shape[1], shape[0]))
-        imgsLst.append(np.array(read_image,dtype='float64'))
-                    
+        # resized_image = cv2.resize(read_image, (shape[1], shape[0]))
+        imgsLst.append(np.array(read_image, dtype='float64'))
+
     return imgsLst
+
 
 if __name__ == '__main__':
 
-    test = cv2.imread('../testImgs/export1.png', cv2.IMREAD_GRAYSCALE)
-    _,class_name = FaceRecognitionWrapper(test)
-    lst = getFirstFour(class_name)
+    test = cv2.imread('src/testImgs/export1.png', cv2.IMREAD_GRAYSCALE)
+    result, class_name = FaceRecognitionWrapper(test)
+    plt.imshow(result, cmap='gray')
+    plt.show()
 
-    for i in range(len(lst)):
-        plt.imshow(lst[i], cmap='gray')
-        plt.title(i)
-        plt.show()
+    # lst = getFirstFour(class_name)
+    # for i in range(len(lst)):
+    #     plt.imshow(lst[i], cmap='gray')
+    #     plt.title(i)
+    #     plt.show()
