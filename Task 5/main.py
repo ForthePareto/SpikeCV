@@ -544,7 +544,7 @@ class ApplicationWindow(GUI.Ui_MainWindow):
             self.datasetUp = False
         else:
             self.datasetUp = True
-            # self.datasetPath += "/"
+            self.faceRec_trainDSInputName.setText("DS Name: " + self.datasetPath.split( '/' )[-1])
 
     def matchFaces(self):
         """
@@ -554,9 +554,8 @@ class ApplicationWindow(GUI.Ui_MainWindow):
         
         
         if(self.ImgUp[21] == True & self.datasetUp == True):
-            self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[22].imgByte, self.datasetPath)  #TODO dataSetPath should be given from gui
+            self.Imgs[22].imgByte, detected_class_name = FaceRecognitionWrapper(self.Imgs[22].imgByte, self.datasetPath)
         
-        # TODO: detected_class_name should be printed in the GUI 
         self.Disp(self.Imgs[22].imgByte,self.Viewers[23])
 
 
