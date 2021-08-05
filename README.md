@@ -2,7 +2,7 @@
 
 ## Results
 
-1. ### Detect edges
+1. ### [Detect edges](./src/Filters.py)
     * Sobel:
 
          ![alt text](./imgs/results/Sobel.jpg "Logo Title Text 1")
@@ -15,28 +15,28 @@
 
 ---
 
-2. ### Histogram and Normalization:
+2. ### [Histogram and Normalization:](./src/ImgUtils.py)
       ![alt text](./imgs/results/Normalized.jpg "Logo Title Text 1")
-3. ### Local and global thresholding:
+3. ### [Local and global thresholding:](./src/ImgUtils.py)
       ![alt text](./imgs/results/Globalthresh.jpg "Logo Title Text 1")
 
 ---
 
-4. ### Frequency domain filters
+4. ### [Frequency domain filters](./src/Filters.py)
     * Low Pass:
 
         ![alt text](./imgs/results/LowPass.jpg "Logo Title Text 1")
     * High Pass:
 
          ![alt text](./imgs/results/HighPass.jpg "Logo Title Text 1")
-5. ### Hybrid images:
+5. ### [Hybrid images:]
    ![alt text](./imgs/results/Hybrid.jpg "Logo Title Text 1")
 
 
 ---
 
 
-6. ### Boundary detection
+6. ### [Boundary detection](./src/CannyHough.py)
     * **Canny Superimposed:**
         ![alt text](./imgs/results/canny.png "Logo Title Text 1")
     * **Hough Lines:**
@@ -46,7 +46,7 @@
 
 ---
 
-7. ### Active Contour
+7. ### [Active Contour](./src/ActiveContour.py)
     * **Object:** 
 
         ![alt text](./imgs/object.png "Logo Title Text 1")
@@ -59,7 +59,7 @@
 
 ---
 
-8. ### Harris
+8. ### [Harris](./src/SIFT)
 
    - _original image_:
 
@@ -71,7 +71,7 @@
 
 ---
 
-9. ### SIFT
+9. ### [SIFT](./src/SIFT)
 
    - _original image_:
 
@@ -83,7 +83,7 @@
 
 ---
 
-10. ### Template Matching
+10. ### [Template Matching](./src/SIFT)
 
    - _result_:
 
@@ -91,7 +91,7 @@
 
 ---
 
-11. ### Thresholding
+11. ### [Thresholding](./src/thresholding.py)
       1. Optimal Otsu's bimodal thresholding
          * Global thresholding: 
             ![alt text](./imgs/results/optimalOtsu_global.png "Global thresholding")
@@ -107,7 +107,7 @@
             ![alt text](./imgs/results/optimal_global.png "Global thresholding")
          * Local thresolding: 
             ![alt text](./imgs/results/optimal_local.png "Local thresholding")
-12. ### Segmentation
+12. ### [Segmentation](./src/Segmentation)
       1. K-means
          * Input:
          
@@ -140,10 +140,10 @@
 
 ---
 
-13. ### Face Detection
+13. ### [Face Detection](./src/recognizeFaces/FaceDetection.py)
 
    ![alt text](./UI/imgs/1_1.png "Face Detection")
-14. ### Face Recognition
+14. ### [Face Recognition](./src/recognizeFaces/faceRecognition.py)
 
    ![alt text](./UI/imgs/2_1.png "Face Recognition")
    
