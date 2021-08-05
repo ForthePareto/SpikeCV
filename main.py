@@ -480,13 +480,14 @@ class ApplicationWindow(GUI.Ui_MainWindow):
 
             QtWidgets.QApplication.processEvents()
 
+    """ TO BE REMOVED
     def corners(self, image):
         from src.Corners import findCorners
         outputCornersImage, cornerList = findCorners(image)
 
         self.cornersInput.setImage(ouputCornersImage.T)
 
-        pass
+        pass """
 
     def switchThreshTextEdit(self):
         print(self.threshTextEdit.toPlainText())
